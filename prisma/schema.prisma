@@ -1,0 +1,125 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int            @id @default(autoincrement())
+  uuid          String         @unique @default(cuid())
+  createdAt     DateTime       @default(now()) @map(name: "created_at")
+  updatedAt     DateTime       @default(now()) @map(name: "updated_at")
+  refreshToken  String?        @map(name: "refresh_token")
+  username      String         @unique
+  phone         String         @unique
+  password      String         @map(name: "password_hash")
+  isActive      Boolean        @default(true)
+  userInfo      UserInfo?
+  roles         Role[]
+  subscriptions Subscription[]
+  billings      Billing[]
+
+  @@map("user")
+}
+
+model UserInfo {
+  id        Int      @id @default(autoincrement())
+  uuid      String   @unique @default(cuid())
+  createdAt DateTime @default(now()) @map(name: "created_at")
+  updatedAt DateTime @default(now()) @map(name: "updated_at")
+  lastName  String   @map(name: "last_name")
+  firstName String?  @map(name: "first_name")
+  avatar    String?
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int      @unique
+
+  @@map("user_info")
+}
+
+model Role {
+  createdAt DateTime @default(now()) @map(name: "created_at")
+  updatedAt DateTime @default(now()) @map(name: "updated_at")
+  name      String   @id
+  users     User[]
+
+  @@map("role")
+}
+
+model Subscription {
+  id                Int            @id @default(autoincrement())
+  emailSubscription String
+  uuid              String         @unique @default(cuid())
+  createdAt         DateTime       @default(now()) @map(name: "created_at")
+  updatedAt         DateTime       @default(now()) @map(name: "updated_at")
+  user              User           @relation(fields: [userId], references: [id])
+  userId            Int
+  platform          Platform
+  amount            Decimal
+  logo              String
+  startDate         DateTime       @map(name: "start_date")
+  billingDate       DateTime       @map(name: "billing_date")
+  screenSlots       Int            @map("screen_slots")
+  isActive          Boolean        @default(true)
+  comboId           Int            @map("combo_id")
+  combo             Combo?         @relation(fields: [comboId], references: [id])
+  BillingDetail     BillingDetail? @relation(fields: [billingDetailId], references: [id])
+  billingDetailId   Int?
+
+  @@map("subscription")
+}
+
+model Combo {
+  id            Int            @id @default(autoincrement())
+  uuid          String         @unique @default(cuid())
+  createdAt     DateTime       @default(now()) @map(name: "created_at")
+  updatedAt     DateTime       @default(now()) @map(name: "updated_at")
+  isActive      Boolean        @default(true)
+  amount        Decimal
+  description   String
+  subscriptions Subscription[]
+
+  BillingDetail   BillingDetail? @relation(fields: [billingDetailId], references: [id])
+  billingDetailId Int?
+  @@map("combo")
+}
+
+model BillingDetail {
+  quantity      Int
+  id            Int            @id @default(autoincrement())
+  uuid          String         @unique @default(cuid())
+  combos        Combo[]
+  subscriptions Subscription[]
+  Billing       Billing?       @relation(fields: [billingId], references: [id])
+  billingId     Int?
+
+  @@map("billing_detail")
+}
+
+model Billing {
+  id             Int             @id @default(autoincrement())
+  uuid           String          @unique @default(cuid())
+  createdAt      DateTime        @default(now()) @map(name: "created_at")
+  totalAmount    Decimal
+  userId         Int             @map("user_id")
+  user           User            @relation(fields: [userId], references: [id])
+  billingDetails BillingDetail[]
+
+  @@map("billing")
+}
+
+enum Platform {
+  NETFLIX
+  YOUTUBE
+  HBO_MAX
+  DIRECTV_GO
+  MOVISTAR_PLAY
+  SPOTIFY
+  DISNEY_PLUS
+  STAR_PLUS
+}
