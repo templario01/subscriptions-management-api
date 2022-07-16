@@ -75,17 +75,17 @@ model Subscription {
 }
 
 model Combo {
-  id            Int            @id @default(autoincrement())
-  uuid          String         @unique @default(cuid())
-  createdAt     DateTime       @default(now()) @map(name: "created_at")
-  updatedAt     DateTime       @default(now()) @map(name: "updated_at")
-  isActive      Boolean        @default(true)
-  amount        Decimal
-  description   String
-  subscriptions Subscription[]
-
+  id              Int            @id @default(autoincrement())
+  uuid            String         @unique @default(cuid())
+  createdAt       DateTime       @default(now()) @map(name: "created_at")
+  updatedAt       DateTime       @default(now()) @map(name: "updated_at")
+  isActive        Boolean        @default(true)
+  amount          Decimal
+  description     String
+  subscriptions   Subscription[]
   BillingDetail   BillingDetail? @relation(fields: [billingDetailId], references: [id])
   billingDetailId Int?
+
   @@map("combo")
 }
 
