@@ -53,15 +53,13 @@ model Role {
 
 model Subscription {
   id                Int            @id @default(autoincrement())
-  emailSubscription String
   uuid              String         @unique @default(cuid())
+  emailSubscription String
   createdAt         DateTime       @default(now()) @map(name: "created_at")
   updatedAt         DateTime       @default(now()) @map(name: "updated_at")
   user              User           @relation(fields: [userId], references: [id])
   userId            Int
-  platform          Platform
-  amount            Decimal
-  logo              String
+  price             Decimal
   startDate         DateTime       @map(name: "start_date")
   billingDate       DateTime       @map(name: "billing_date")
   screenSlots       Int            @map("screen_slots")
@@ -70,8 +68,21 @@ model Subscription {
   combo             Combo?         @relation(fields: [comboId], references: [id])
   BillingDetail     BillingDetail? @relation(fields: [billingDetailId], references: [id])
   billingDetailId   Int?
+  platform          Platform?      @relation(fields: [platformId], references: [id])
+  platformId        Int            @map("platform_id")
 
   @@map("subscription")
+}
+
+model Platform {
+  id            Int            @id @default(autoincrement())
+  uuid          String         @unique @default(cuid())
+  name          String         @unique
+  createdAt     DateTime       @default(now()) @map(name: "created_at")
+  updatedAt     DateTime       @default(now()) @map(name: "updated_at")
+  defaultPrice  Decimal        @default(0) @map("default_price")
+  logo          String?
+  subscriptions Subscription[]
 }
 
 model Combo {
@@ -111,15 +122,4 @@ model Billing {
   billingDetails BillingDetail[]
 
   @@map("billing")
-}
-
-enum Platform {
-  NETFLIX
-  YOUTUBE
-  HBO_MAX
-  DIRECTV_GO
-  MOVISTAR_PLAY
-  SPOTIFY
-  DISNEY_PLUS
-  STAR_PLUS
 }

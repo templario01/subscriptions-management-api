@@ -1,6 +1,7 @@
-import { PrismaClient, Role, User } from '@prisma/client'
+import { Platform, PrismaClient, Role, User } from '@prisma/client'
 import { RolesEnum } from '../src/application/common/roles.enum'
 import { hash } from 'bcrypt'
+import { PlatformsEnum } from '../src/application/common/platforms.enum'
 
 const prisma = new PrismaClient()
 
@@ -10,7 +11,8 @@ async function main() {
   const superAdmin = await createTestSuperAdmin()
   const admin = await createTestAdmin()
   const user = await createTestUser()
-  console.log({ roles, superAdmin, admin, user })
+  const platforms = await createPlatforms()
+  console.log({ roles, superAdmin, admin, user, platforms })
 }
 
 main()
@@ -59,9 +61,22 @@ async function createUser(
 ): Promise<User> {
   const saltRounds = Number(process.env.PASSWORD_SALT_ROUNDS)
   const passwordHash = await hash(password, saltRounds)
-  return await prisma.user.upsert({
+  return prisma.user.upsert({
     where: { username },
     create: { password: passwordHash, username, phone },
     update: { password: passwordHash, username, phone },
   })
+}
+
+async function createPlatforms(): Promise<Platform[]> {
+  const keys = Object.keys(PlatformsEnum).filter((v) => isNaN(Number(v)))
+  const platformTasks = keys.map((key) => {
+    return prisma.platform.upsert({
+      where: { name: key },
+      create: { name: key },
+      update: { name: key },
+    })
+  })
+
+  return Promise.all(platformTasks)
 }
