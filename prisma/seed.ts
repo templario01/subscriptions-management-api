@@ -54,11 +54,7 @@ async function createRoles(): Promise<Role[]> {
   return Promise.all(roleTasks)
 }
 
-async function createUser(
-  username: string,
-  phone: string,
-  password: string,
-): Promise<User> {
+async function createUser(username: string, phone: string, password: string): Promise<User> {
   const saltRounds = Number(process.env.PASSWORD_SALT_ROUNDS)
   const passwordHash = await hash(password, saltRounds)
   return prisma.user.upsert({

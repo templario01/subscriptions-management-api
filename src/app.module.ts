@@ -11,7 +11,7 @@ import { ApiModule } from './api/api.module'
       driver: ApolloDriver,
       sortSchema: true,
       introspection: true,
-      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+      autoSchemaFile: join(process.cwd(), './schema.gql'),
       context: ({ req }) => ({ req }),
       playground: true,
     }),

@@ -1,0 +1,30 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type LoginResponseModel {
+  accessToken: String!
+  user: User!
+}
+
+input LoginUserInput {
+  password: String!
+  username: String!
+}
+
+type Mutation {
+  login(loginUserInput: LoginUserInput!): LoginResponseModel!
+}
+
+type Query {
+  user: User!
+}
+
+type User {
+  avatar: String!
+  id: ID!
+  lastName: String!
+  name: String!
+  phone: String!
+  username: String!
+}
