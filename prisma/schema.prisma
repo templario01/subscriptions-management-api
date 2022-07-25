@@ -83,6 +83,8 @@ model Platform {
   defaultPrice  Decimal        @default(0) @map("default_price")
   logo          String?
   subscriptions Subscription[]
+
+  @@map("platform")
 }
 
 model Combo {
