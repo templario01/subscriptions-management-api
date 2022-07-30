@@ -2,15 +2,11 @@ import { ExecutionContext, Injectable } from '@nestjs/common'
 import { GqlExecutionContext } from '@nestjs/graphql'
 import { AuthGuard } from '@nestjs/passport'
 
-import { Request } from 'express'
-import { SessionData } from '../../application/auth/dtos/response/session-data'
-
-export interface UserRequest extends Request {
-  user?: SessionData
-}
+@Injectable()
+export class LoginAuthGuard extends AuthGuard('local') {}
 
 @Injectable()
-export class GqlAuthGuard extends AuthGuard('local') {
+export class GqlLoginAuthGuard extends AuthGuard('local') {
   constructor() {
     super()
   }

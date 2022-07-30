@@ -2,8 +2,9 @@ import { Injectable } from '@nestjs/common'
 import { UserRepository } from '../../../persistence/repositories/user.repository'
 import { JwtService } from '@nestjs/jwt'
 import { compare } from 'bcrypt'
-import { SessionData } from '../dtos/response/session-data'
-import { AcccessTokenResponse, UserWithRoles } from '../types/user.types'
+import { SessionData } from '../dtos/response/auth.response'
+import { UserWithRoles } from '../../user/types/user.types'
+import { AcccessTokenResponseModel } from '../dtos/models/accesstoken-response.model'
 
 @Injectable()
 export class AuthService {
@@ -29,13 +30,13 @@ export class AuthService {
     return { id, username, phone, roles: userRoles }
   }
 
-  login(user: SessionData): AcccessTokenResponse {
+  login(user: SessionData): AcccessTokenResponseModel {
     const { id, username, phone, roles } = user
     const accessToken = this.jwtService.sign({ username, phone, id, roles })
     return { accessToken }
   }
 
-  async validateUserRequest(username: string, password: string): Promise<SessionData> {
+  async validateLogin(username: string, password: string): Promise<SessionData> {
     const isMail = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(username)
     if (isMail) {
       return this.validateUserByMail(username, password)

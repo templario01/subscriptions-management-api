@@ -2,7 +2,7 @@ import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
 import { GqlContextType, GqlExecutionContext } from '@nestjs/graphql'
 import { Observable } from 'rxjs'
-import { SessionData } from '../../application/auth/dtos/response/session-data'
+import { SessionData } from '../../application/auth/dtos/response/auth.response'
 
 @Injectable()
 export class RoleGuard implements CanActivate {

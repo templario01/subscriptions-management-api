@@ -25,6 +25,7 @@
   "dependencies": {
     "@nestjs/apollo": "^10.0.17",
     "@nestjs/common": "^8.0.0",
+    "@nestjs/config": "^2.2.0",
     "@nestjs/core": "^8.0.0",
     "@nestjs/graphql": "^10.0.18",
     "@nestjs/jwt": "^9.0.0",
@@ -36,6 +37,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
     "graphql": "^16.5.0",
+    "joi": "^17.6.0",
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",
     "prisma": "^4.0.0",

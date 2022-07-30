@@ -1,6 +1,6 @@
 import { UseGuards } from '@nestjs/common'
 import { Query, Resolver } from '@nestjs/graphql'
-import { SessionData } from '../../application/auth/dtos/response/session-data'
+import { SessionData } from '../../application/auth/dtos/response/auth.response'
 import { RolesEnum } from '../../application/common/roles.enum'
 import { UserModel } from '../../application/user/models/user.model'
 import { CurrentUser } from '../decorators/current-user.decorator'
