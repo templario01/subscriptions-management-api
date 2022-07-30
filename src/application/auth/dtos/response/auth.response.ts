@@ -8,3 +8,7 @@ export class SessionData {
   username?: string
   roles: string[]
 }
+
+export interface TokenResponse {
+  token: string
+}

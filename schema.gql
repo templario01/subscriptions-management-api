@@ -4,6 +4,7 @@
 
 type AcccessTokenResponseModel {
   accessToken: String!
+  refreshToken: String!
 }
 
 input LoginUserInput {

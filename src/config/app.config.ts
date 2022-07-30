@@ -22,11 +22,17 @@ export const appConfig = registerAs<IAppConfig>(
 
 export interface IJwtConfig {
   jwtSecretKey: string
+  jwtExpirationTime: string
+  jwtRefreshExpirationTime: string
+  jwtRefreshSecretKey: string
 }
 
 export const jwtConfig = registerAs<IJwtConfig>(
   'jwtConfig',
   (): IJwtConfig => ({
-    jwtSecretKey: process.env.JWT_SECRET_KEY,
+    jwtSecretKey: process.env.JWT_ACCESS_TOKEN_SECRET,
+    jwtExpirationTime: process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME,
+    jwtRefreshExpirationTime: process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME,
+    jwtRefreshSecretKey: process.env.JWT_REFRESH_TOKEN_SECRET,
   }),
 )

@@ -4,4 +4,7 @@ import { Field, ObjectType } from '@nestjs/graphql'
 export class AcccessTokenResponseModel {
   @Field()
   accessToken: string
+
+  @Field()
+  refreshToken: string
 }
