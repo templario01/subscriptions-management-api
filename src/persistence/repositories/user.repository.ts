@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common'
 import { User } from '@prisma/client'
+import { UserWithRoles } from '../../application/auth/types/user.types'
 import { PrismaService } from '../services/prisma.service'
 
 @Injectable()
 export class UserRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findUserByEmail(mail: string): Promise<User> {
+  async findUserByEmail(mail: string): Promise<UserWithRoles> {
     return await this.prisma.user.findFirst({
       where: {
         username: {
@@ -14,10 +15,11 @@ export class UserRepository {
           mode: 'insensitive',
         },
       },
+      include: { roles: true },
     })
   }
 
-  async findUserByPhone(phone: string): Promise<User> {
+  async findUserByPhone(phone: string): Promise<UserWithRoles> {
     return await this.prisma.user.findFirst({
       where: {
         phone: {
@@ -25,6 +27,7 @@ export class UserRepository {
           mode: 'insensitive',
         },
       },
+      include: { roles: true },
     })
   }
 

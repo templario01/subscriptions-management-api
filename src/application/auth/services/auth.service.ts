@@ -1,43 +1,41 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { UserRepository } from '../../../persistence/repositories/user.repository'
 import { JwtService } from '@nestjs/jwt'
-import { User } from '@prisma/client'
-import { compare, genSalt, hash } from 'bcrypt'
-import { LoginUserInput } from '../dtos/inputs/login.input'
-import { UserWithoutRelations } from '../dtos/response/user.response.dto'
-import { plainToClass } from 'class-transformer'
+import { compare } from 'bcrypt'
+import { SessionData } from '../dtos/response/session-data'
+import { AcccessTokenResponse, UserWithRoles } from '../types/user.types'
 
 @Injectable()
 export class AuthService {
   constructor(private readonly userRepository: UserRepository, private readonly jwtService: JwtService) {}
 
-  async validateUserByMail(email: string, password: string): Promise<UserWithoutRelations> {
+  async validateUserByMail(email: string, password: string): Promise<SessionData> {
     const user = await this.userRepository.findUserByEmail(email)
+    if (!user) return
     const matchPassword = await compare(password, user.password)
-    if (user && matchPassword) {
-      return plainToClass(UserWithoutRelations, user)
-    }
-    throw new HttpException('Invalid username or password', HttpStatus.UNAUTHORIZED)
+    return matchPassword ? this.getSessionData(user) : null
   }
 
-  async validateUserByPhone(phone: string, password: string): Promise<UserWithoutRelations> {
+  async validateUserByPhone(phone: string, password: string): Promise<SessionData> {
     const user = await this.userRepository.findUserByPhone(phone)
+    if (!user) return
     const matchPassword = await compare(password, user.password)
-    if (user && matchPassword) {
-      return plainToClass(UserWithoutRelations, user)
-    }
-    throw new HttpException('Invalid username or password', HttpStatus.UNAUTHORIZED)
+    return matchPassword ? this.getSessionData(user) : null
   }
 
-  async login(user: User) {
-    const accessToken = this.jwtService.sign({ username: user.username, sub: user.id })
-    return {
-      accessToken,
-      user,
-    }
+  getSessionData(user: UserWithRoles): SessionData {
+    const { id, username, phone } = user
+    const userRoles = user.roles.map((e) => e.name)
+    return { id, username, phone, roles: userRoles }
   }
 
-  async validateUserRequest(username: string, password: string): Promise<UserWithoutRelations> {
+  login(user: SessionData): AcccessTokenResponse {
+    const { id, username, phone, roles } = user
+    const accessToken = this.jwtService.sign({ username, phone, id, roles })
+    return { accessToken }
+  }
+
+  async validateUserRequest(username: string, password: string): Promise<SessionData> {
     const isMail = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(username)
     if (isMail) {
       return this.validateUserByMail(username, password)

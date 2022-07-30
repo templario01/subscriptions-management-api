@@ -25,21 +25,24 @@ async function createTestUser() {
   const username = 'user@example.com'
   const phone = '950354371'
   const password = 'user'
-  return await createUser(username, phone, password)
+  const roles = [RolesEnum.USER]
+  return await createUser(username, phone, password, roles)
 }
 
 async function createTestAdmin() {
   const username = 'admin@example.com'
   const phone = '950354373'
   const password = 'admin'
-  return await createUser(username, phone, password)
+  const roles = [RolesEnum.ADMIN, RolesEnum.USER]
+  return await createUser(username, phone, password, roles)
 }
 
 async function createTestSuperAdmin() {
   const username = 'superadmin@example.com'
   const phone = '950354372'
   const password = 'superadmin'
-  return await createUser(username, phone, password)
+  const roles = [RolesEnum.SUPERADMIN, RolesEnum.ADMIN, RolesEnum.USER]
+  return await createUser(username, phone, password, roles)
 }
 
 async function createRoles(): Promise<Role[]> {
@@ -54,13 +57,24 @@ async function createRoles(): Promise<Role[]> {
   return Promise.all(roleTasks)
 }
 
-async function createUser(username: string, phone: string, password: string): Promise<User> {
+async function createUser(username: string, phone: string, password: string, roles: RolesEnum[]): Promise<User> {
   const saltRounds = Number(process.env.PASSWORD_SALT_ROUNDS)
   const passwordHash = await hash(password, saltRounds)
   return prisma.user.upsert({
     where: { username },
-    create: { password: passwordHash, username, phone },
-    update: { password: passwordHash, username, phone },
+    create: {
+      password: passwordHash,
+      username,
+      phone,
+      roles: { connect: roles.map((role) => ({ name: role })) },
+    },
+    update: {
+      username,
+      phone,
+      password: passwordHash,
+      roles: { connect: roles.map((role) => ({ name: role })) },
+    },
+    include: { roles: true },
   })
 }
 

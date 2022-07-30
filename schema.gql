@@ -2,9 +2,8 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type LoginResponseModel {
+type AcccessTokenResponseModel {
   accessToken: String!
-  user: User!
 }
 
 input LoginUserInput {
@@ -13,7 +12,7 @@ input LoginUserInput {
 }
 
 type Mutation {
-  login(loginUserInput: LoginUserInput!): LoginResponseModel!
+  login(loginUserInput: LoginUserInput!): AcccessTokenResponseModel!
 }
 
 type Query {
