@@ -10,9 +10,7 @@ import { RoleGuard } from '../guards/role.guard'
 
 @Resolver(() => UserModel)
 export class UserResolver {
-  constructor() {
-    //
-  }
+  constructor() {}
 
   @Roles(RolesEnum.SUPERADMIN)
   @UseGuards(GqlJwtAuthGuard, RoleGuard)
