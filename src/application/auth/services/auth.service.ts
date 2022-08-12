@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { UserRepository } from '../../../persistence/repositories/user.repository'
 import { JwtService } from '@nestjs/jwt'
 import { compare } from 'bcrypt'
@@ -9,8 +9,9 @@ import { EnvConfigService } from '../../../config/env-config.service'
 import { CreateAccountInput } from '../dtos/inputs/create-account.input'
 import { plainToClass } from 'class-transformer'
 import { UserWithInfoModel } from '../../user/models/user-with-info.model'
+import { nanoid } from 'nanoid'
 
-const ROBOHASH_HOST = 'https://robodash.org'
+const ROBOHASH_HOST = 'https://robohash.org'
 @Injectable()
 export class AuthService {
   constructor(
@@ -77,7 +78,12 @@ export class AuthService {
   }
 
   async activeAccount(input: CreateAccountInput): Promise<UserWithInfoModel> {
-    const avatarUrl = `${ROBOHASH_HOST}/${input.phone}`
+    const user = await this.userRepository.findUserByPhone(input.phone)
+    if (user) {
+      throw new HttpException('email or phone number already exists', HttpStatus.BAD_REQUEST)
+    }
+    const nanoId = nanoid()
+    const avatarUrl = `${ROBOHASH_HOST}/${nanoId}`
     const account = await this.userRepository.createAccount(input, avatarUrl)
     return plainToClass(UserWithInfoModel, account)
   }

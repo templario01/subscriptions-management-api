@@ -14,6 +14,12 @@ input CreateAccountInput {
   phone: String!
 }
 
+input CreateSubscriptionAccountInput {
+  email: String!
+  password: String!
+  platformUUID: String!
+}
+
 input LoginUserInput {
   password: String!
   username: String!
@@ -21,11 +27,25 @@ input LoginUserInput {
 
 type Mutation {
   activeAccount(createAccountInput: CreateAccountInput!): UserWithInfo!
+  createSubscriptionAccount(createAccountInput: CreateSubscriptionAccountInput!): SubscriptionAccountModel!
   login(loginUserInput: LoginUserInput!): AcccessTokenResponseModel!
+}
+
+type PlatformModel {
+  defaultPrice: String!
+  logo: String
+  name: String!
+  uuid: String!
 }
 
 type Query {
   user: UserWithInfo!
+}
+
+type SubscriptionAccountModel {
+  email: String!
+  password: String!
+  platform: PlatformModel!
 }
 
 type UserInfo {
