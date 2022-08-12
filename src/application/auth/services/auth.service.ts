@@ -6,7 +6,11 @@ import { SessionData, TokenResponse } from '../dtos/response/auth.response'
 import { UserWithRoles } from '../../user/types/user.types'
 import { AcccessTokenResponseModel } from '../dtos/models/accesstoken-response.model'
 import { EnvConfigService } from '../../../config/env-config.service'
+import { CreateAccountInput } from '../dtos/inputs/create-account.input'
+import { plainToClass } from 'class-transformer'
+import { UserWithInfoModel } from '../../user/models/user-with-info.model'
 
+const ROBOHASH_HOST = 'https://robodash.org'
 @Injectable()
 export class AuthService {
   constructor(
@@ -15,10 +19,12 @@ export class AuthService {
     private readonly configService: EnvConfigService,
   ) {}
 
-  login(user: SessionData): AcccessTokenResponseModel {
+  async login(user: SessionData): Promise<AcccessTokenResponseModel> {
+    const refreshToken = this.createRefreshToken(user).token
+    const session = await this.userRepository.registerSessionById(user.id, refreshToken)
     return {
       accessToken: this.createAccessToken(user).token,
-      refreshToken: this.createRefreshToken(user).token,
+      refreshToken: session.refreshToken,
     }
   }
 
@@ -68,5 +74,11 @@ export class AuthService {
       return this.validateUserByMail(username, password)
     }
     return this.validateUserByPhone(username, password)
+  }
+
+  async activeAccount(input: CreateAccountInput): Promise<UserWithInfoModel> {
+    const avatarUrl = `${ROBOHASH_HOST}/${input.phone}`
+    const account = await this.userRepository.createAccount(input, avatarUrl)
+    return plainToClass(UserWithInfoModel, account)
   }
 }
