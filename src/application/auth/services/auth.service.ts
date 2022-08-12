@@ -10,7 +10,7 @@ import { CreateAccountInput } from '../dtos/inputs/create-account.input'
 import { plainToClass } from 'class-transformer'
 import { UserWithInfoModel } from '../../user/models/user-with-info.model'
 
-const ROBODASH_HOST = 'https://robodash.org'
+const ROBOHASH_HOST = 'https://robodash.org'
 @Injectable()
 export class AuthService {
   constructor(
@@ -77,7 +77,7 @@ export class AuthService {
   }
 
   async activeAccount(input: CreateAccountInput): Promise<UserWithInfoModel> {
-    const avatarUrl = `${ROBODASH_HOST}/${input.phone}`
+    const avatarUrl = `${ROBOHASH_HOST}/${input.phone}`
     const account = await this.userRepository.createAccount(input, avatarUrl)
     return plainToClass(UserWithInfoModel, account)
   }
