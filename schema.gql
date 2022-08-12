@@ -7,24 +7,36 @@ type AcccessTokenResponseModel {
   refreshToken: String!
 }
 
+input CreateAccountInput {
+  email: String
+  firstName: String
+  lastName: String
+  phone: String!
+}
+
 input LoginUserInput {
   password: String!
   username: String!
 }
 
 type Mutation {
+  activeAccount(createAccountInput: CreateAccountInput!): UserWithInfo!
   login(loginUserInput: LoginUserInput!): AcccessTokenResponseModel!
 }
 
 type Query {
-  user: User!
+  user: UserWithInfo!
 }
 
-type User {
+type UserInfo {
   avatar: String!
-  id: ID!
-  lastName: String!
-  name: String!
+  firstName: String
+  lastName: String
+}
+
+type UserWithInfo {
   phone: String!
-  username: String!
+  userInfo: UserInfo!
+  username: String
+  uuid: ID!
 }

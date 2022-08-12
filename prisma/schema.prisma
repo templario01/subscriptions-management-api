@@ -34,9 +34,10 @@ model UserInfo {
   uuid      String   @unique @default(cuid())
   createdAt DateTime @default(now()) @map(name: "created_at")
   updatedAt DateTime @default(now()) @map(name: "updated_at")
-  lastName  String   @map(name: "last_name")
+  lastName  String?  @map(name: "last_name")
   firstName String?  @map(name: "first_name")
-  avatar    String?
+  alias     String?
+  avatar    String
   user      User     @relation(fields: [userId], references: [id])
   userId    Int      @unique
 

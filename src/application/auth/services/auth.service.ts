@@ -6,7 +6,11 @@ import { SessionData, TokenResponse } from '../dtos/response/auth.response'
 import { UserWithRoles } from '../../user/types/user.types'
 import { AcccessTokenResponseModel } from '../dtos/models/accesstoken-response.model'
 import { EnvConfigService } from '../../../config/env-config.service'
+import { CreateAccountInput } from '../dtos/inputs/create-account.input'
+import { plainToClass } from 'class-transformer'
+import { UserWithInfoModel } from '../../user/models/user-with-info.model'
 
+const ROBODASH_HOST = 'https://robodash.org'
 @Injectable()
 export class AuthService {
   constructor(
@@ -70,5 +74,11 @@ export class AuthService {
       return this.validateUserByMail(username, password)
     }
     return this.validateUserByPhone(username, password)
+  }
+
+  async activeAccount(input: CreateAccountInput): Promise<UserWithInfoModel> {
+    const avatarUrl = `${ROBODASH_HOST}/${input.phone}`
+    const account = await this.userRepository.createAccount(input, avatarUrl)
+    return plainToClass(UserWithInfoModel, account)
   }
 }
