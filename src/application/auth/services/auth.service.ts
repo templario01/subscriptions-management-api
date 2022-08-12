@@ -15,10 +15,12 @@ export class AuthService {
     private readonly configService: EnvConfigService,
   ) {}
 
-  login(user: SessionData): AcccessTokenResponseModel {
+  async login(user: SessionData): Promise<AcccessTokenResponseModel> {
+    const refreshToken = this.createRefreshToken(user).token
+    const session = await this.userRepository.registerSessionById(user.id, refreshToken)
     return {
       accessToken: this.createAccessToken(user).token,
-      refreshToken: this.createRefreshToken(user).token,
+      refreshToken: session.refreshToken,
     }
   }
 

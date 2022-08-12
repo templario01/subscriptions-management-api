@@ -10,6 +10,7 @@ import { RoleGuard } from '../guards/role.guard'
 
 @Resolver(() => UserModel)
 export class UserResolver {
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   constructor() {}
 
   @Roles(RolesEnum.SUPERADMIN)

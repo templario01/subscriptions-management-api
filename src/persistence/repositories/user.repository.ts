@@ -7,8 +7,18 @@ import { PrismaService } from '../services/prisma.service'
 export class UserRepository {
   constructor(private readonly prisma: PrismaService) {}
 
+  async registerSessionById(id: number, refreshToken: string): Promise<User> {
+    return this.prisma.user.update({
+      where: { id },
+      data: {
+        lastSession: new Date(),
+        refreshToken,
+      },
+    })
+  }
+
   async findUserByEmail(mail: string): Promise<UserWithRoles> {
-    return await this.prisma.user.findFirst({
+    return this.prisma.user.findFirst({
       where: {
         username: {
           equals: mail,
@@ -20,7 +30,7 @@ export class UserRepository {
   }
 
   async findUserByPhone(phone: string): Promise<UserWithRoles> {
-    return await this.prisma.user.findFirst({
+    return this.prisma.user.findFirst({
       where: {
         phone: {
           equals: phone,
@@ -32,6 +42,6 @@ export class UserRepository {
   }
 
   async createUser(user: User): Promise<User> {
-    return await this.prisma.user.create({ data: user })
+    return this.prisma.user.create({ data: user })
   }
 }
