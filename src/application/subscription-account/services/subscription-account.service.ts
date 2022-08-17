@@ -3,9 +3,10 @@ import { plainToClass } from 'class-transformer'
 import { SubscriptionAccountRepository } from '../../../persistence/repositories/subscription-account.repository'
 import { CreateSubscriptionAccountInput } from '../dtos/inputs/create-subscription-account.input'
 import { SubscriptionAccountModel } from '../dtos/models/subscription-account.model'
+import { ISubscriptionAccountService } from './subscription-account.service.interface'
 
 @Injectable()
-export class SubscriptionAccountService {
+export class SubscriptionAccountService implements ISubscriptionAccountService {
   constructor(private readonly subscriptionAccountRepo: SubscriptionAccountRepository) {}
 
   async createSubscriptionAccount(input: CreateSubscriptionAccountInput): Promise<SubscriptionAccountModel> {

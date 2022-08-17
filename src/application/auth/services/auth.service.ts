@@ -10,10 +10,11 @@ import { CreateAccountInput } from '../dtos/inputs/create-account.input'
 import { plainToClass } from 'class-transformer'
 import { UserWithInfoModel } from '../../user/models/user-with-info.model'
 import { nanoid } from 'nanoid'
+import { IAuthService } from './auth.service.interface'
 
 const ROBOHASH_HOST = 'https://robohash.org'
 @Injectable()
-export class AuthService {
+export class AuthService implements IAuthService {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly jwtService: JwtService,
@@ -45,7 +46,7 @@ export class AuthService {
     }
   }
 
-  createRefreshToken(user: SessionData) {
+  createRefreshToken(user: SessionData): TokenResponse {
     const config = this.configService.jwtConfig()
     return {
       token: this.jwtService.sign(user, {
