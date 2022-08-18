@@ -14,7 +14,7 @@ import { EnvConfigModule } from './config/env-config.module'
       sortSchema: true,
       introspection: true,
       autoSchemaFile: join(process.cwd(), './schema.gql'),
-      context: ({ req }) => ({ req }),
+      context: ({ req, res, payload, connection }) => ({ req, res, payload, connection }),
       playground: true,
     }),
   ],

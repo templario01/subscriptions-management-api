@@ -1,7 +1,8 @@
 import { Global, Module } from '@nestjs/common'
-import { ConfigModule } from '@nestjs/config'
+import { ConfigModule, ConfigService } from '@nestjs/config'
 import { EnvConfigService } from './env-config.service'
 import { appConfig, jwtConfig } from './app.config'
+import { JwtModule } from '@nestjs/jwt'
 
 const configuration = [appConfig, jwtConfig]
 
@@ -14,7 +15,15 @@ const configuration = [appConfig, jwtConfig]
       load: [...configuration],
       cache: true,
     }),
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get('appConfig.jwtSecretKey'),
+        signOptions: { expiresIn: `${configService.get('app.jwtExpirationTime')}s` },
+      }),
+    }),
   ],
-  exports: [EnvConfigService],
+  exports: [EnvConfigService, JwtModule],
 })
 export class EnvConfigModule {}

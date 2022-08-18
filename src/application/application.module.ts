@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common'
-import { JwtModule } from '@nestjs/jwt'
 import { PersistenceModule } from '../persistence/persistence.module'
 import { provideService } from '../utils/provide-service'
 import { AuthService } from './auth/services/auth.service'
@@ -17,7 +16,7 @@ const strategies = [LocalStrategy, JwtStrategy]
 
 @Module({
   exports: [...services],
-  imports: [PersistenceModule, JwtModule.register({ signOptions: { expiresIn: '1h' }, secret: 'secret' })],
+  imports: [PersistenceModule],
   providers: [...services, ...strategies],
   controllers: [],
 })
