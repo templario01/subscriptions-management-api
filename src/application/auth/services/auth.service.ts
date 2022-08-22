@@ -8,7 +8,7 @@ import { AcccessTokenResponseModel } from '../dtos/models/accesstoken-response.m
 import { EnvConfigService } from '../../../config/env-config.service'
 import { CreateAccountInput } from '../dtos/inputs/create-account.input'
 import { plainToClass } from 'class-transformer'
-import { UserWithInfoModel } from '../../user/models/user-with-info.model'
+import { UserWithInfoModel } from '../../user/dtos/models/user-with-info.model'
 import { nanoid } from 'nanoid'
 import { IAuthService } from './auth.service.interface'
 

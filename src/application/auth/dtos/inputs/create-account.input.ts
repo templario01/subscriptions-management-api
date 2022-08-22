@@ -26,4 +26,10 @@ export class CreateAccountInput {
   @IsNotEmpty()
   @IsOptional()
   lastName?: string
+
+  @Field({ nullable: true })
+  @IsString()
+  @IsNotEmpty()
+  @IsOptional()
+  password?: string
 }

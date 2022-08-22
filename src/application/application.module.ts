@@ -7,10 +7,13 @@ import { JwtStrategy } from './auth/strategies/jwt.strategy'
 import { LocalStrategy } from './auth/strategies/local.strategy'
 import { SubscriptionAccountService } from './subscription-account/services/subscription-account.service'
 import { ISubscriptionAccountService } from './subscription-account/services/subscription-account.service.interface'
+import { UserService } from './user/services/user.service'
+import { IUserService } from './user/services/user.service.interface'
 
 const services = [
   provideService(IAuthService, AuthService),
   provideService(ISubscriptionAccountService, SubscriptionAccountService),
+  provideService(IUserService, UserService),
 ]
 const strategies = [LocalStrategy, JwtStrategy]
 

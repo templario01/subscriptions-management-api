@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { UserWithInfoModel } from '../../user/models/user-with-info.model'
+import { UserWithInfoModel } from '../../user/dtos/models/user-with-info.model'
 import { UserWithRoles } from '../../user/types/user.types'
 import { CreateAccountInput } from '../dtos/inputs/create-account.input'
 import { AcccessTokenResponseModel } from '../dtos/models/accesstoken-response.model'

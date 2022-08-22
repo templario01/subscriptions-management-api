@@ -1,13 +1,46 @@
 import { Injectable } from '@nestjs/common'
+import bcrypt from 'bcrypt'
 import { User } from '@prisma/client'
 import { CreateAccountInput } from '../../application/auth/dtos/inputs/create-account.input'
 import { RolesEnum } from '../../application/common/roles.enum'
+import { UpdateAccountInput } from '../../application/user/dtos/input/update-user.input'
 import { UserWithRoles, UserWithUserInfo } from '../../application/user/types/user.types'
 import { PrismaService } from '../services/prisma.service'
 
 @Injectable()
 export class UserRepository {
   constructor(private readonly prisma: PrismaService) {}
+
+  async getUserByUUID(uuid: string): Promise<UserWithUserInfo> {
+    return this.prisma.user.findUnique({
+      where: { uuid },
+      include: { userInfo: true },
+    })
+  }
+
+  async editUserInfo({
+    uuid,
+    email,
+    password,
+    phone,
+    isActive,
+    ...userInfo
+  }: UpdateAccountInput): Promise<UserWithUserInfo> {
+    const passwordEncrypted = password ? await this.encryptPassword(password) : await this.encryptPassword(phone)
+    return this.prisma.user.update({
+      where: { uuid },
+      data: {
+        username: email,
+        password: passwordEncrypted,
+        isActive,
+        phone,
+        userInfo: {
+          update: { ...userInfo },
+        },
+      },
+      include: { userInfo: true },
+    })
+  }
 
   async registerSessionById(id: number, refreshToken: string): Promise<User> {
     return this.prisma.user.update({
@@ -43,15 +76,15 @@ export class UserRepository {
     })
   }
 
-  async createUser(user: User): Promise<User> {
-    return this.prisma.user.create({ data: user })
-  }
-
-  async createAccount({ phone, email, ...userInfo }: CreateAccountInput, url: string): Promise<UserWithUserInfo> {
+  async createAccount(
+    { phone, email, password, ...userInfo }: CreateAccountInput,
+    url: string,
+  ): Promise<UserWithUserInfo> {
+    const passwordEncrypted = password ? await this.encryptPassword(password) : await this.encryptPassword(phone)
     return this.prisma.user.create({
       data: {
         username: email,
-        password: phone,
+        password: passwordEncrypted,
         userInfo: {
           create: { ...userInfo, avatar: url },
         },
@@ -62,5 +95,10 @@ export class UserRepository {
         userInfo: true,
       },
     })
+  }
+
+  private async encryptPassword(pass: string): Promise<string> {
+    const salt = await bcrypt.genSalt(10)
+    return bcrypt.hash(pass, salt)
   }
 }
