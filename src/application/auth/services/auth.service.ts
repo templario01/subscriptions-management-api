@@ -22,11 +22,12 @@ export class AuthService implements IAuthService {
   ) {}
 
   async login(user: SessionData): Promise<AcccessTokenResponseModel> {
+    const accessToken = this.createAccessToken(user).token
     const refreshToken = this.createRefreshToken(user).token
-    const session = await this.userRepository.registerSessionById(user.id, refreshToken)
+    await this.userRepository.registerSessionById(user.id, refreshToken)
     return {
-      accessToken: this.createAccessToken(user).token,
-      refreshToken: session.refreshToken,
+      accessToken,
+      refreshToken,
     }
   }
 
@@ -41,7 +42,7 @@ export class AuthService implements IAuthService {
     return {
       token: this.jwtService.sign(user, {
         secret: config.jwtSecretKey,
-        expiresIn: `${config.jwtExpirationTime}`,
+        expiresIn: `${config.jwtExpirationTime}s`,
       }),
     }
   }
@@ -51,7 +52,7 @@ export class AuthService implements IAuthService {
     return {
       token: this.jwtService.sign(user, {
         secret: config.jwtRefreshSecretKey,
-        expiresIn: `${config.jwtRefreshExpirationTime}`,
+        expiresIn: `${config.jwtRefreshExpirationTime}s`,
       }),
     }
   }
