@@ -11,6 +11,7 @@ input CreateAccountInput {
   email: String
   firstName: String
   lastName: String
+  password: String
   phone: String!
 }
 
@@ -29,6 +30,7 @@ type Mutation {
   activeAccount(createAccountInput: CreateAccountInput!): UserWithInfo!
   createSubscriptionAccount(createAccountInput: CreateSubscriptionAccountInput!): SubscriptionAccountModel!
   login(loginUserInput: LoginUserInput!): AcccessTokenResponseModel!
+  updateUserAccount(createAccountInput: UpdateAccountInput!): UserWithInfo!
 }
 
 type PlatformModel {
@@ -39,7 +41,8 @@ type PlatformModel {
 }
 
 type Query {
-  user: UserWithInfo!
+  getCurrentUser: UserModel!
+  getUserInfo(uuid: ID!): UserModel!
 }
 
 type SubscriptionAccountModel {
@@ -48,10 +51,27 @@ type SubscriptionAccountModel {
   platform: PlatformModel!
 }
 
+input UpdateAccountInput {
+  email: String
+  firstName: String
+  isActive: Boolean
+  lastName: String
+  password: String
+  phone: String
+  uuid: ID!
+}
+
 type UserInfo {
   avatar: String!
   firstName: String
   lastName: String
+}
+
+type UserModel {
+  id: Float!
+  phone: String!
+  roles: [String!]!
+  username: String!
 }
 
 type UserWithInfo {
