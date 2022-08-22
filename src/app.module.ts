@@ -13,7 +13,7 @@ import { EnvConfigModule } from './config/env-config.module'
       driver: ApolloDriver,
       sortSchema: true,
       introspection: true,
-      autoSchemaFile: join(process.cwd(), './schema.gql'),
+      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       context: ({ req, res, payload, connection }) => ({ req, res, payload, connection }),
       playground: true,
     }),
