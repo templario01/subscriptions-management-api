@@ -86,6 +86,7 @@ model SubscriptionAccount {
   platform    Platform?      @relation(fields: [platformId], references: [id])
   suscription Subscription[]
 
+  @@unique([email, platformId])
   @@map("subscription_account")
 }
 

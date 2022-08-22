@@ -6,7 +6,7 @@ import { EnvConfigService } from '../../../config/env-config.service'
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(private readonly configService: EnvConfigService) {
+  constructor(readonly configService: EnvConfigService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       secretOrKey: configService.jwtConfig().jwtSecretKey,

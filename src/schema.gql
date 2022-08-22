@@ -2,15 +2,81 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type Query {
-  user: User!
+type AcccessTokenResponseModel {
+  accessToken: String!
+  refreshToken: String!
 }
 
-type User {
-  avatar: String!
-  id: ID!
-  lastName: String!
-  name: String!
+input CreateAccountInput {
+  email: String
+  firstName: String
+  lastName: String
+  password: String
   phone: String!
+}
+
+input CreateSubscriptionAccountInput {
+  email: String!
+  password: String!
+  platformUUID: String!
+}
+
+input LoginUserInput {
+  password: String!
   username: String!
+}
+
+type Mutation {
+  activeAccount(createAccountInput: CreateAccountInput!): UserWithInfo!
+  createSubscriptionAccount(createAccountInput: CreateSubscriptionAccountInput!): SubscriptionAccountModel!
+  login(loginUserInput: LoginUserInput!): AcccessTokenResponseModel!
+  updateUserAccount(createAccountInput: UpdateAccountInput!): UserWithInfo!
+}
+
+type PlatformModel {
+  defaultPrice: String!
+  logo: String
+  name: String!
+  uuid: String!
+}
+
+type Query {
+  getCurrentUser: UserModel!
+  getUserInfo(uuid: ID!): UserModel!
+}
+
+type SubscriptionAccountModel {
+  email: String!
+  password: String!
+  platform: PlatformModel!
+}
+
+input UpdateAccountInput {
+  email: String
+  firstName: String
+  isActive: Boolean
+  lastName: String
+  password: String
+  phone: String
+  uuid: ID!
+}
+
+type UserInfo {
+  avatar: String!
+  firstName: String
+  lastName: String
+}
+
+type UserModel {
+  id: Float!
+  phone: String!
+  roles: [String!]!
+  username: String!
+}
+
+type UserWithInfo {
+  phone: String!
+  userInfo: UserInfo!
+  username: String
+  uuid: ID!
 }

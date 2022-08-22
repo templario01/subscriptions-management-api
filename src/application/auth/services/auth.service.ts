@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { UserRepository } from '../../../persistence/repositories/user.repository'
 import { JwtService } from '@nestjs/jwt'
 import { compare } from 'bcrypt'
@@ -8,11 +8,13 @@ import { AcccessTokenResponseModel } from '../dtos/models/accesstoken-response.m
 import { EnvConfigService } from '../../../config/env-config.service'
 import { CreateAccountInput } from '../dtos/inputs/create-account.input'
 import { plainToClass } from 'class-transformer'
-import { UserWithInfoModel } from '../../user/models/user-with-info.model'
+import { UserWithInfoModel } from '../../user/dtos/models/user-with-info.model'
+import { nanoid } from 'nanoid'
+import { IAuthService } from './auth.service.interface'
 
-const ROBOHASH_HOST = 'https://robodash.org'
+const ROBOHASH_HOST = 'https://robohash.org'
 @Injectable()
-export class AuthService {
+export class AuthService implements IAuthService {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly jwtService: JwtService,
@@ -20,11 +22,12 @@ export class AuthService {
   ) {}
 
   async login(user: SessionData): Promise<AcccessTokenResponseModel> {
+    const accessToken = this.createAccessToken(user).token
     const refreshToken = this.createRefreshToken(user).token
-    const session = await this.userRepository.registerSessionById(user.id, refreshToken)
+    await this.userRepository.registerSessionById(user.id, refreshToken)
     return {
-      accessToken: this.createAccessToken(user).token,
-      refreshToken: session.refreshToken,
+      accessToken,
+      refreshToken,
     }
   }
 
@@ -39,17 +42,17 @@ export class AuthService {
     return {
       token: this.jwtService.sign(user, {
         secret: config.jwtSecretKey,
-        expiresIn: `${config.jwtExpirationTime}`,
+        expiresIn: `${config.jwtExpirationTime}s`,
       }),
     }
   }
 
-  createRefreshToken(user: SessionData) {
+  createRefreshToken(user: SessionData): TokenResponse {
     const config = this.configService.jwtConfig()
     return {
       token: this.jwtService.sign(user, {
         secret: config.jwtRefreshSecretKey,
-        expiresIn: `${config.jwtRefreshExpirationTime}`,
+        expiresIn: `${config.jwtRefreshExpirationTime}s`,
       }),
     }
   }
@@ -77,7 +80,12 @@ export class AuthService {
   }
 
   async activeAccount(input: CreateAccountInput): Promise<UserWithInfoModel> {
-    const avatarUrl = `${ROBOHASH_HOST}/${input.phone}`
+    const user = await this.userRepository.findUserByPhone(input.phone)
+    if (user) {
+      throw new HttpException('email or phone number already exists', HttpStatus.BAD_REQUEST)
+    }
+    const nanoId = nanoid()
+    const avatarUrl = `${ROBOHASH_HOST}/${nanoId}`
     const account = await this.userRepository.createAccount(input, avatarUrl)
     return plainToClass(UserWithInfoModel, account)
   }
