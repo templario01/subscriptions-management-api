@@ -5,4 +5,5 @@ import { SubscriptionAccountModel } from '../dtos/models/subscription-account.mo
 @Injectable()
 export abstract class ISubscriptionAccountService {
   abstract createSubscriptionAccount(input: CreateSubscriptionAccountInput): Promise<SubscriptionAccountModel>
+  abstract getSubscriptionAccountsByPlatform(platformUUID: string): Promise<SubscriptionAccountModel[]>
 }

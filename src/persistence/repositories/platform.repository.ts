@@ -6,7 +6,16 @@ import { PrismaService } from '../services/prisma.service'
 export class PlatformRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getAllPlatforms(): Promise<Platform[]> {
-    return this.prisma.platform.findMany()
+  async getPlatformsByName(name?: string): Promise<Platform[]> {
+    return this.prisma.platform.findMany({
+      ...(name && {
+        where: {
+          name: {
+            contains: name,
+            mode: 'insensitive',
+          },
+        },
+      }),
+    })
   }
 }

@@ -34,7 +34,7 @@ type Mutation {
 }
 
 type PlatformModel {
-  defaultPrice: String!
+  defaultPrice: Float!
   logo: String
   name: String!
   uuid: String!
@@ -42,6 +42,7 @@ type PlatformModel {
 
 type Query {
   getCurrentUser: UserModel!
+  getSubscriptionAccounsByPlatform(platformUUID: String!): [SubscriptionAccountModel!]!
   getUserInfo(uuid: ID!): UserModel!
 }
 
