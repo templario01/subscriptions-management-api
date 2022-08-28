@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, UnprocessableEntityException } from '@nestjs/common'
 import { plainToClass } from 'class-transformer'
 import { SubscriptionAccountRepository } from '../../../persistence/repositories/subscription-account.repository'
 import { CreateSubscriptionAccountInput } from '../dtos/inputs/create-subscription-account.input'
@@ -27,5 +27,12 @@ export class SubscriptionAccountService implements ISubscriptionAccountService {
         },
       })
     })
+  }
+
+  async verifyAvailableSlots() {
+    const subscriptionAccount = await this.subscriptionAccountRepo.findByUUID('123')
+    if (subscriptionAccount.slots === 0) {
+      throw new UnprocessableEntityException(`No slots available for account ${subscriptionAccount.email}`)
+    }
   }
 }

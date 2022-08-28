@@ -83,6 +83,7 @@ model SubscriptionAccount {
   updatedAt   DateTime       @default(now()) @map(name: "updated_at")
   isActive    Boolean        @default(true)
   platformId  Int            @map("platform_id")
+  slots       Int?            
   platform    Platform?      @relation(fields: [platformId], references: [id])
   suscription Subscription[]
 

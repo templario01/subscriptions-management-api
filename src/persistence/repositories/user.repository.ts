@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common'
-import bcrypt from 'bcrypt'
+import * as bcrypt from 'bcrypt'
 import { User } from '@prisma/client'
 import { CreateAccountInput } from '../../application/auth/dtos/inputs/create-account.input'
 import { RolesEnum } from '../../application/common/roles.enum'
 import { UpdateAccountInput } from '../../application/user/dtos/input/update-user.input'
 import { UserWithRoles, UserWithUserInfo } from '../../application/user/types/user.types'
 import { PrismaService } from '../services/prisma.service'
+import { CreateAdminAccountInput } from '../../application/auth/dtos/inputs/create-admin-account.input'
 
 @Injectable()
 export class UserRepository {
@@ -73,6 +74,23 @@ export class UserRepository {
         },
       },
       include: { roles: true },
+    })
+  }
+
+  async createAdminAccount({ password, email, phone, ...userInfo }: CreateAdminAccountInput, url: string) {
+    const roles = [RolesEnum.ADMIN, RolesEnum.USER]
+    const passwordEncrypted = await this.encryptPassword(password)
+    return this.prisma.user.create({
+      data: {
+        username: email,
+        password: passwordEncrypted,
+        phone: phone,
+        userInfo: { create: { ...userInfo, avatar: url } },
+        roles: { connect: roles.map((role) => ({ name: role })) },
+      },
+      include: {
+        userInfo: true,
+      },
     })
   }
 

@@ -11,6 +11,7 @@ import { plainToClass } from 'class-transformer'
 import { UserWithInfoModel } from '../../user/dtos/models/user-with-info.model'
 import { nanoid } from 'nanoid'
 import { IAuthService } from './auth.service.interface'
+import { CreateAdminAccountInput } from '../dtos/inputs/create-admin-account.input'
 
 const ROBOHASH_HOST = 'https://robohash.org'
 @Injectable()
@@ -79,14 +80,28 @@ export class AuthService implements IAuthService {
     return this.validateUserByPhone(username, password)
   }
 
-  async activeAccount(input: CreateAccountInput): Promise<UserWithInfoModel> {
+  async createCustomerAccount(input: CreateAccountInput): Promise<UserWithInfoModel> {
     const user = await this.userRepository.findUserByPhone(input.phone)
     if (user) {
       throw new HttpException('email or phone number already exists', HttpStatus.BAD_REQUEST)
     }
-    const nanoId = nanoid()
-    const avatarUrl = `${ROBOHASH_HOST}/${nanoId}`
+    const avatarUrl = this.generateImageUrl()
     const account = await this.userRepository.createAccount(input, avatarUrl)
     return plainToClass(UserWithInfoModel, account)
+  }
+
+  async createAdminAccount(input: CreateAdminAccountInput): Promise<UserWithInfoModel> {
+    const user = await this.userRepository.findUserByPhone(input.phone)
+    if (user) {
+      throw new HttpException('email or phone number already exists', HttpStatus.BAD_REQUEST)
+    }
+    const avatarUrl = this.generateImageUrl()
+    const account = await this.userRepository.createAdminAccount(input, avatarUrl)
+    return plainToClass(UserWithInfoModel, account)
+  }
+
+  private generateImageUrl(): string {
+    const nanoId = nanoid()
+    return `${ROBOHASH_HOST}/${nanoId}`
   }
 }

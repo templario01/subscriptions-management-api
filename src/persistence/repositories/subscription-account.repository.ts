@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, UnprocessableEntityException } from '@nestjs/common'
-import { Prisma } from '@prisma/client'
+import { Prisma, SubscriptionAccount } from '@prisma/client'
 import { CreateSubscriptionAccountInput } from '../../application/subscription-account/dtos/inputs/create-subscription-account.input'
 import { SubscriptionWithPlatform } from '../../application/subscription-account/types/subscription-account.types'
 import { PrismaErrorsEnum } from '../../utils/prisma-errors'
@@ -28,8 +28,14 @@ export class SubscriptionAccountRepository {
 
       return subscriptionAccount
     } catch (error) {
+      const platform = await this.prisma.platform.findUnique({
+        where: { uuid: platformUUID },
+        rejectOnNotFound: false,
+      })
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === PrismaErrorsEnum.P2002) {
-        throw new BadRequestException(`there are already a platform with this email: ${email}`)
+        throw new BadRequestException(
+          'there are already' + `${platform ? ' a ' + platform.name : ' an'}` + ' account with this email:' + email,
+        )
       }
 
       throw new UnprocessableEntityException(error)
@@ -44,6 +50,14 @@ export class SubscriptionAccountRepository {
         },
       },
       include: { platform: true },
+    })
+  }
+
+  async findByUUID(uuid: string): Promise<SubscriptionAccount> {
+    return this.prisma.subscriptionAccount.findUnique({
+      where: {
+        uuid,
+      },
     })
   }
 }
