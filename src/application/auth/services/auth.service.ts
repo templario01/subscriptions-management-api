@@ -91,9 +91,9 @@ export class AuthService implements IAuthService {
   }
 
   async createAdminAccount(input: CreateAdminAccountInput): Promise<UserWithInfoModel> {
-    const user = await this.userRepository.findUserByPhone(input.phone)
+    const user = await this.userRepository.findUserByEmail(input.email)
     if (user) {
-      throw new HttpException('email or phone number already exists', HttpStatus.BAD_REQUEST)
+      throw new HttpException('email already taken', HttpStatus.BAD_REQUEST)
     }
     const avatarUrl = this.generateImageUrl()
     const account = await this.userRepository.createAdminAccount(input, avatarUrl)

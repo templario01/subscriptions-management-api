@@ -77,14 +77,13 @@ export class UserRepository {
     })
   }
 
-  async createAdminAccount({ password, email, phone, ...userInfo }: CreateAdminAccountInput, url: string) {
+  async createAdminAccount({ password, email, ...userInfo }: CreateAdminAccountInput, url: string) {
     const roles = [RolesEnum.ADMIN, RolesEnum.USER]
     const passwordEncrypted = await this.encryptPassword(password)
     return this.prisma.user.create({
       data: {
         username: email,
         password: passwordEncrypted,
-        phone: phone,
         userInfo: { create: { ...userInfo, avatar: url } },
         roles: { connect: roles.map((role) => ({ name: role })) },
       },

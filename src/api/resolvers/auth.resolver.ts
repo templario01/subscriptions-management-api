@@ -12,6 +12,7 @@ import { Roles } from '../decorators/role.decorator'
 import { GqlJwtAuthGuard } from '../guards/jwt-auth.guard'
 import { GqlLoginAuthGuard } from '../guards/login-auth.guard'
 import { RoleGuard } from '../guards/role.guard'
+
 @Resolver()
 export class AuthResolver {
   constructor(private readonly authService: IAuthService) {}

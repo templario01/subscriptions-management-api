@@ -17,10 +17,7 @@ input CreateAccountInput {
 
 input CreateAdminAccountInput {
   email: String!
-  firstName: String
-  lastName: String
   password: String!
-  phone: String!
 }
 
 input CreateSubscriptionAccountInput {

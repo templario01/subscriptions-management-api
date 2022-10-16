@@ -17,7 +17,7 @@ model User {
   updatedAt     DateTime       @default(now()) @map(name: "updated_at")
   refreshToken  String?        @map(name: "refresh_token")
   username      String?        @unique
-  phone         String         @unique
+  phone         String?         @unique
   password      String         @map(name: "password_hash")
   isActive      Boolean        @default(true)
   lastSession   DateTime       @default(now()) @map(name: "last_session")
