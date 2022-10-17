@@ -2,7 +2,7 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type AcccessTokenResponseModel {
+type AccessTokenResponseModel {
   accessToken: String!
   refreshToken: String!
 }
@@ -35,7 +35,8 @@ type Mutation {
   createAdminAccount(createAdminAccountInput: CreateAdminAccountInput!): UserWithInfo!
   createCustomerAccount(createAccountInput: CreateAccountInput!): UserWithInfo!
   createSubscriptionAccount(createAccountInput: CreateSubscriptionAccountInput!): SubscriptionAccountModel!
-  login(loginUserInput: LoginUserInput!): AcccessTokenResponseModel!
+  getRefreshToken(token: String!): AccessTokenResponseModel!
+  login(loginUserInput: LoginUserInput!): AccessTokenResponseModel!
   updateUserAccount(createAccountInput: UpdateAccountInput!): UserWithInfo!
 }
 
@@ -82,7 +83,7 @@ type UserModel {
 }
 
 type UserWithInfo {
-  phone: String!
+  phone: String
   userInfo: UserInfo!
   username: String
   uuid: ID!

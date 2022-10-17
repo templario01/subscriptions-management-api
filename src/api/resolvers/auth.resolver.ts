@@ -3,7 +3,7 @@ import { Args, Context, Mutation, Resolver } from '@nestjs/graphql'
 import { CreateAccountInput } from '../../application/auth/dtos/inputs/create-account.input'
 import { CreateAdminAccountInput } from '../../application/auth/dtos/inputs/create-admin-account.input'
 import { LoginUserInput } from '../../application/auth/dtos/inputs/login.input'
-import { AcccessTokenResponseModel } from '../../application/auth/dtos/models/accesstoken-response.model'
+import { AccessTokenResponseModel } from '../../application/auth/dtos/models/accesstoken-response.model'
 import { UserRequest } from '../../application/auth/dtos/response/auth.response'
 import { IAuthService } from '../../application/auth/services/auth.service.interface'
 import { RolesEnum } from '../../application/common/roles.enum'
@@ -30,11 +30,16 @@ export class AuthResolver {
   }
 
   @UseGuards(GqlLoginAuthGuard)
-  @Mutation(() => AcccessTokenResponseModel, { name: 'login' })
+  @Mutation(() => AccessTokenResponseModel, { name: 'login' })
   login(
     @Args('loginUserInput') params: LoginUserInput,
     @Context() context: UserRequest,
-  ): Promise<AcccessTokenResponseModel> {
+  ): Promise<AccessTokenResponseModel> {
     return this.authService.login(context.user)
+  }
+
+  @Mutation(() => AccessTokenResponseModel, { name: 'getRefreshToken' })
+  getRefreshToken(@Args('token') token: string): Promise<AccessTokenResponseModel> {
+    return this.authService.getRefreshToken(token)
   }
 }

@@ -114,6 +114,17 @@ export class UserRepository {
     })
   }
 
+  async getByToken(token: string): Promise<UserWithRoles> {
+    return this.prisma.user.findFirst({
+      where: {
+        refreshToken: token,
+      },
+      include: {
+        roles: true,
+      },
+    })
+  }
+
   private async encryptPassword(pass: string): Promise<string> {
     const salt = await bcrypt.genSalt(10)
     return bcrypt.hash(pass, salt)
