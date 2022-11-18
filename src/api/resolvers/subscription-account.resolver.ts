@@ -15,9 +15,7 @@ export class SubscriptionAccountResolver {
   @Roles(RolesEnum.ADMIN)
   @UseGuards(GqlJwtAuthGuard, RoleGuard)
   @Mutation(() => SubscriptionAccountModel, { name: 'createSubscriptionAccount' })
-  createSubscriptionAccount(
-    @Args('createAccountInput') params: CreateSubscriptionAccountInput,
-  ): Promise<SubscriptionAccountModel> {
+  createSubscriptionAccount(@Args('data') params: CreateSubscriptionAccountInput): Promise<SubscriptionAccountModel> {
     return this.subscriptionAccountService.createSubscriptionAccount(params)
   }
 

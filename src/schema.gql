@@ -32,12 +32,12 @@ input LoginUserInput {
 }
 
 type Mutation {
+  activeAccount(data: CreateAccountInput!): UserWithInfo!
   createAdminAccount(createAdminAccountInput: CreateAdminAccountInput!): UserWithInfo!
-  createCustomerAccount(createAccountInput: CreateAccountInput!): UserWithInfo!
-  createSubscriptionAccount(createAccountInput: CreateSubscriptionAccountInput!): SubscriptionAccountModel!
+  createSubscriptionAccount(data: CreateSubscriptionAccountInput!): SubscriptionAccountModel!
   getRefreshToken(token: String!): AccessTokenResponseModel!
   login(loginUserInput: LoginUserInput!): AccessTokenResponseModel!
-  updateUserAccount(createAccountInput: UpdateAccountInput!): UserWithInfo!
+  updateUserAccount(data: UpdateAccountInput!): UserWithInfo!
 }
 
 type PlatformModel {

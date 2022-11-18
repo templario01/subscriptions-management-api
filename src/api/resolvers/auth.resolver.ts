@@ -1,6 +1,6 @@
+import { CreateAccountInput } from '@application/auth/dtos/inputs/create-account.input'
 import { UseGuards } from '@nestjs/common'
 import { Args, Context, Mutation, Resolver } from '@nestjs/graphql'
-import { CreateAccountInput } from '../../application/auth/dtos/inputs/create-account.input'
 import { CreateAdminAccountInput } from '../../application/auth/dtos/inputs/create-admin-account.input'
 import { LoginUserInput } from '../../application/auth/dtos/inputs/login.input'
 import { AccessTokenResponseModel } from '../../application/auth/dtos/models/accesstoken-response.model'
@@ -22,13 +22,6 @@ export class AuthResolver {
     return this.authService.createAdminAccount(params)
   }
 
-  @Roles(RolesEnum.ADMIN)
-  @UseGuards(GqlJwtAuthGuard, RoleGuard)
-  @Mutation(() => UserWithInfoModel, { name: 'createCustomerAccount' })
-  activeAccount(@Args('createAccountInput') params: CreateAccountInput): Promise<UserWithInfoModel> {
-    return this.authService.createCustomerAccount(params)
-  }
-
   @UseGuards(GqlLoginAuthGuard)
   @Mutation(() => AccessTokenResponseModel, { name: 'login' })
   login(
@@ -41,5 +34,12 @@ export class AuthResolver {
   @Mutation(() => AccessTokenResponseModel, { name: 'getRefreshToken' })
   getRefreshToken(@Args('token') token: string): Promise<AccessTokenResponseModel> {
     return this.authService.getRefreshToken(token)
+  }
+
+  @Roles(RolesEnum.ADMIN)
+  @UseGuards(GqlJwtAuthGuard, RoleGuard)
+  @Mutation(() => UserWithInfoModel, { name: 'activeAccount' })
+  activeAccount(@Args('data') params: CreateAccountInput): Promise<UserWithInfoModel> {
+    return this.authService.createCustomerAccount(params)
   }
 }
