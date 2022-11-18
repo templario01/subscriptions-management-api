@@ -26,7 +26,7 @@ export class UserResolver {
   @Roles(RolesEnum.ADMIN)
   @UseGuards(GqlJwtAuthGuard, RoleGuard)
   @Mutation(() => UserWithInfoModel, { name: 'updateUserAccount' })
-  async updateUserAccount(@Args('createAccountInput') params: UpdateAccountInput): Promise<UserWithInfoModel> {
+  async updateUserAccount(@Args('data') params: UpdateAccountInput): Promise<UserWithInfoModel> {
     return this.userService.updateUserInfo(params)
   }
 

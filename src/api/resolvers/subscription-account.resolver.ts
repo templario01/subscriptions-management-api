@@ -1,5 +1,5 @@
 import { UseGuards } from '@nestjs/common'
-import { Args, Mutation, Resolver } from '@nestjs/graphql'
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql'
 import { RolesEnum } from '../../application/common/roles.enum'
 import { CreateSubscriptionAccountInput } from '../../application/subscription-account/dtos/inputs/create-subscription-account.input'
 import { SubscriptionAccountModel } from '../../application/subscription-account/dtos/models/subscription-account.model'
@@ -15,9 +15,14 @@ export class SubscriptionAccountResolver {
   @Roles(RolesEnum.ADMIN)
   @UseGuards(GqlJwtAuthGuard, RoleGuard)
   @Mutation(() => SubscriptionAccountModel, { name: 'createSubscriptionAccount' })
-  createSubscriptionAccount(
-    @Args('createAccountInput') params: CreateSubscriptionAccountInput,
-  ): Promise<SubscriptionAccountModel> {
+  createSubscriptionAccount(@Args('data') params: CreateSubscriptionAccountInput): Promise<SubscriptionAccountModel> {
     return this.subscriptionAccountService.createSubscriptionAccount(params)
+  }
+
+  @Roles(RolesEnum.ADMIN)
+  @UseGuards(GqlJwtAuthGuard, RoleGuard)
+  @Query(() => [SubscriptionAccountModel], { name: 'getSubscriptionAccounsByPlatform' })
+  getSubscriptonAccountsByPlatform(@Args('platformUUID') platformUUID: string): Promise<SubscriptionAccountModel[]> {
+    return this.subscriptionAccountService.getSubscriptionAccountsByPlatform(platformUUID)
   }
 }

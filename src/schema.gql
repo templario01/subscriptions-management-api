@@ -2,7 +2,7 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type AcccessTokenResponseModel {
+type AccessTokenResponseModel {
   accessToken: String!
   refreshToken: String!
 }
@@ -13,6 +13,11 @@ input CreateAccountInput {
   lastName: String
   password: String
   phone: String!
+}
+
+input CreateAdminAccountInput {
+  email: String!
+  password: String!
 }
 
 input CreateSubscriptionAccountInput {
@@ -27,14 +32,16 @@ input LoginUserInput {
 }
 
 type Mutation {
-  activeAccount(createAccountInput: CreateAccountInput!): UserWithInfo!
-  createSubscriptionAccount(createAccountInput: CreateSubscriptionAccountInput!): SubscriptionAccountModel!
-  login(loginUserInput: LoginUserInput!): AcccessTokenResponseModel!
-  updateUserAccount(createAccountInput: UpdateAccountInput!): UserWithInfo!
+  activeAccount(data: CreateAccountInput!): UserWithInfo!
+  createAdminAccount(createAdminAccountInput: CreateAdminAccountInput!): UserWithInfo!
+  createSubscriptionAccount(data: CreateSubscriptionAccountInput!): SubscriptionAccountModel!
+  getRefreshToken(token: String!): AccessTokenResponseModel!
+  login(loginUserInput: LoginUserInput!): AccessTokenResponseModel!
+  updateUserAccount(data: UpdateAccountInput!): UserWithInfo!
 }
 
 type PlatformModel {
-  defaultPrice: String!
+  defaultPrice: Float!
   logo: String
   name: String!
   uuid: String!
@@ -42,6 +49,7 @@ type PlatformModel {
 
 type Query {
   getCurrentUser: UserModel!
+  getSubscriptionAccounsByPlatform(platformUUID: String!): [SubscriptionAccountModel!]!
   getUserInfo(uuid: ID!): UserModel!
 }
 
@@ -75,7 +83,7 @@ type UserModel {
 }
 
 type UserWithInfo {
-  phone: String!
+  phone: String
   userInfo: UserInfo!
   username: String
   uuid: ID!

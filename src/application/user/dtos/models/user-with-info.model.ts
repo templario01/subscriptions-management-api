@@ -6,8 +6,8 @@ export class UserWithInfoModel {
   @Field(() => ID)
   uuid: string
 
-  @Field()
-  phone: string
+  @Field({ nullable: true })
+  phone?: string
 
   @Field({ nullable: true })
   username?: string

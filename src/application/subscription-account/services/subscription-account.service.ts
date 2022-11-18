@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, UnprocessableEntityException } from '@nestjs/common'
 import { plainToClass } from 'class-transformer'
 import { SubscriptionAccountRepository } from '../../../persistence/repositories/subscription-account.repository'
 import { CreateSubscriptionAccountInput } from '../dtos/inputs/create-subscription-account.input'
@@ -10,11 +10,29 @@ export class SubscriptionAccountService implements ISubscriptionAccountService {
   constructor(private readonly subscriptionAccountRepo: SubscriptionAccountRepository) {}
 
   async createSubscriptionAccount(input: CreateSubscriptionAccountInput): Promise<SubscriptionAccountModel> {
-    try {
-      const subscriptionAccount = await this.subscriptionAccountRepo.createSubscriptionAccount(input)
-      return plainToClass(SubscriptionAccountModel, subscriptionAccount)
-    } catch (error) {
-      console.log(error)
+    const subscriptionAccount = await this.subscriptionAccountRepo.createSubscriptionAccount(input)
+
+    return plainToClass(SubscriptionAccountModel, subscriptionAccount)
+  }
+
+  async getSubscriptionAccountsByPlatform(platformUUID: string): Promise<SubscriptionAccountModel[]> {
+    const subscriptionAccounts = await this.subscriptionAccountRepo.getSubscriptionAccounstByPlatform(platformUUID)
+
+    return subscriptionAccounts.map(({ platform, ...subscriptionAccount }) => {
+      return plainToClass(SubscriptionAccountModel, {
+        ...subscriptionAccount,
+        platform: {
+          ...platform,
+          defaultPrice: platform.defaultPrice.toNumber(),
+        },
+      })
+    })
+  }
+
+  async verifyAvailableSlots() {
+    const subscriptionAccount = await this.subscriptionAccountRepo.findByUUID('123')
+    if (subscriptionAccount.slots === 0) {
+      throw new UnprocessableEntityException(`No slots available for account ${subscriptionAccount.email}`)
     }
   }
 }
