@@ -55,10 +55,10 @@ export class AuthService implements IAuthService {
   }
 
   getSessionData(user: UserWithRoles): SessionData {
-    const { id, username, phone } = user
+    const { id, username, phone, userInfo } = user
     const userRoles = user.roles.map((e) => e.name)
 
-    return { id, username, phone, roles: userRoles }
+    return { id, username, phone, roles: userRoles, avatar: userInfo.avatar }
   }
 
   createAccessToken(user: SessionData): TokenResponse {

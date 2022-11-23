@@ -6,6 +6,7 @@ export class SessionData {
   id: number
   phone?: string
   username?: string
+  avatar?: string
   roles: string[]
 }
 

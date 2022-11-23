@@ -60,7 +60,7 @@ async function createRoles(): Promise<Role[]> {
 async function createUser(username: string, phone: string, password: string, roles: RolesEnum[]): Promise<User> {
   const saltRounds = Number(process.env.PASSWORD_SALT_ROUNDS)
   const passwordHash = await hash(password, saltRounds)
-  return prisma.user.upsert({
+  const user = await prisma.user.upsert({
     where: { username },
     create: {
       password: passwordHash,
@@ -76,6 +76,21 @@ async function createUser(username: string, phone: string, password: string, rol
     },
     include: { roles: true },
   })
+
+  await prisma.userInfo.upsert({
+    where: {
+      userId: user.id,
+    },
+    create: {
+      userId: user.id,
+      avatar: `https://robohash.org/${user.uuid}`,
+    },
+    update: {
+      avatar: `https://robohash.org/${user.uuid}`,
+    },
+  })
+
+  return user
 }
 
 async function createPlatforms(): Promise<Platform[]> {

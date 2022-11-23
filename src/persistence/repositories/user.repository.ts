@@ -61,7 +61,7 @@ export class UserRepository {
           mode: 'insensitive',
         },
       },
-      include: { roles: true },
+      include: { roles: true, userInfo: true },
     })
   }
 
@@ -73,7 +73,7 @@ export class UserRepository {
           mode: 'insensitive',
         },
       },
-      include: { roles: true },
+      include: { roles: true, userInfo: true },
     })
   }
 
@@ -119,9 +119,7 @@ export class UserRepository {
       where: {
         refreshToken: token,
       },
-      include: {
-        roles: true,
-      },
+      include: { roles: true, userInfo: true },
     })
   }
 
