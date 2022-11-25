@@ -1,6 +1,4 @@
 import { Field, ObjectType } from '@nestjs/graphql'
-import { Transform } from 'class-transformer'
-import { toNumber } from '../../../../utils/transform-validators'
 
 @ObjectType()
 export class PlatformModel {
@@ -13,7 +11,6 @@ export class PlatformModel {
   @Field({ nullable: true })
   logo?: string
 
-  @Transform(({ value }) => toNumber(value))
-  @Field()
-  defaultPrice: number
+  @Field({ nullable: true })
+  slotPrice?: number
 }

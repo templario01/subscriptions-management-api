@@ -1,18 +1,27 @@
 import { Injectable, UnprocessableEntityException } from '@nestjs/common'
-import { plainToClass } from 'class-transformer'
+import { plainToClass, plainToInstance } from 'class-transformer'
+
 import { SubscriptionAccountRepository } from '../../../persistence/repositories/subscription-account.repository'
 import { CreateSubscriptionAccountInput } from '../dtos/inputs/create-subscription-account.input'
-import { SubscriptionAccountModel } from '../dtos/models/subscription-account.model'
+import { GetSubscriptionAccount } from '../dtos/args/get-subscription-account.args'
+import { IPaginatedSubscriptionAccountModel, SubscriptionAccountModel } from '../dtos/models/subscription-account.model'
 import { ISubscriptionAccountService } from './subscription-account.service.interface'
 
 @Injectable()
 export class SubscriptionAccountService implements ISubscriptionAccountService {
   constructor(private readonly subscriptionAccountRepo: SubscriptionAccountRepository) {}
 
-  async createSubscriptionAccount(input: CreateSubscriptionAccountInput): Promise<SubscriptionAccountModel> {
-    const subscriptionAccount = await this.subscriptionAccountRepo.createSubscriptionAccount(input)
+  async createSubscriptionAccount(
+    input: CreateSubscriptionAccountInput,
+    id: number,
+  ): Promise<SubscriptionAccountModel> {
+    const account = await this.subscriptionAccountRepo.createSubscriptionAccount(input, id)
 
-    return plainToClass(SubscriptionAccountModel, subscriptionAccount)
+    return plainToInstance(SubscriptionAccountModel, {
+      ...account,
+      slotPrice: account.slotPrice.toNumber(),
+      completePrice: account.completePrice.toNumber(),
+    })
   }
 
   async getSubscriptionAccountsByPlatform(platformUUID: string): Promise<SubscriptionAccountModel[]> {
@@ -23,7 +32,6 @@ export class SubscriptionAccountService implements ISubscriptionAccountService {
         ...subscriptionAccount,
         platform: {
           ...platform,
-          defaultPrice: platform.defaultPrice.toNumber(),
         },
       })
     })
@@ -34,5 +42,12 @@ export class SubscriptionAccountService implements ISubscriptionAccountService {
     if (subscriptionAccount.slots === 0) {
       throw new UnprocessableEntityException(`No slots available for account ${subscriptionAccount.email}`)
     }
+  }
+
+  async getAllAccountsWithFilter(
+    params: GetSubscriptionAccount,
+    userId: number,
+  ): Promise<IPaginatedSubscriptionAccountModel> {
+    return this.subscriptionAccountRepo.findByName(params, userId)
   }
 }

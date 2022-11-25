@@ -11,20 +11,21 @@ datasource db {
 }
 
 model User {
-  id            Int            @id @default(autoincrement())
-  uuid          String         @unique @default(cuid())
-  createdAt     DateTime       @default(now()) @map(name: "created_at")
-  updatedAt     DateTime       @default(now()) @map(name: "updated_at")
-  refreshToken  String?        @map(name: "refresh_token")
-  username      String?        @unique
-  phone         String?         @unique
-  password      String         @map(name: "password_hash")
-  isActive      Boolean        @default(true)
-  lastSession   DateTime       @default(now()) @map(name: "last_session")
+  id            Int                  @id @default(autoincrement())
+  uuid          String               @unique @default(cuid())
+  createdAt     DateTime             @default(now()) @map(name: "created_at")
+  updatedAt     DateTime             @default(now()) @map(name: "updated_at")
+  refreshToken  String?              @map(name: "refresh_token")
+  username      String?              @unique
+  phone         String?              @unique
+  password      String               @map(name: "password_hash")
+  isActive      Boolean              @default(true)
+  lastSession   DateTime             @default(now()) @map(name: "last_session")
   userInfo      UserInfo?
   roles         Role[]
   subscriptions Subscription[]
   billings      Billing[]
+  platforms     UserManagePlatform[]
 
   @@map("user")
 }
@@ -75,17 +76,20 @@ model Subscription {
 }
 
 model SubscriptionAccount {
-  id          Int            @id @default(autoincrement())
-  email       String
-  password    String
-  uuid        String         @unique @default(cuid())
-  createdAt   DateTime       @default(now()) @map(name: "created_at")
-  updatedAt   DateTime       @default(now()) @map(name: "updated_at")
-  isActive    Boolean        @default(true)
-  platformId  Int            @map("platform_id")
-  slots       Int?            
-  platform    Platform?      @relation(fields: [platformId], references: [id])
-  suscription Subscription[]
+  id            Int            @id @default(autoincrement())
+  uuid          String         @unique @default(cuid())
+  email         String
+  password      String
+  slotPrice     Decimal        @default(0) @map("slot_price")
+  completePrice Decimal        @default(0) @map("complete_price")
+  isSoldBySlots Boolean?       @map("is_sold_by_slots")
+  createdAt     DateTime       @default(now()) @map(name: "created_at")
+  updatedAt     DateTime       @default(now()) @map(name: "updated_at")
+  isActive      Boolean        @default(true)
+  platformId    Int            @map("platform_id")
+  slots         Int?
+  platform      Platform?      @relation(fields: [platformId], references: [id])
+  suscription   Subscription[]
 
   @@unique([email, platformId])
   @@map("subscription_account")
@@ -97,11 +101,23 @@ model Platform {
   name                 String                @unique
   createdAt            DateTime              @default(now()) @map(name: "created_at")
   updatedAt            DateTime              @default(now()) @map(name: "updated_at")
-  defaultPrice         Decimal               @default(0) @map("default_price")
   logo                 String?
   subscriptionAccounts SubscriptionAccount[]
+  managers             UserManagePlatform[]
+  manageId             Int?                  @map("manage_id")
 
   @@map("platform")
+}
+
+model UserManagePlatform {
+  user       User     @relation(fields: [userId], references: [id])
+  userId     Int      @map("user_id")
+  platform   Platform @relation(fields: [platformId], references: [id])
+  platformId Int      @map("platform_id")
+  assignedAt DateTime @default(now()) @map("assigned_at")
+
+  @@id([userId, platformId])
+  @@map("user_manage_platform")
 }
 
 model Combo {
@@ -110,7 +126,7 @@ model Combo {
   createdAt       DateTime       @default(now()) @map(name: "created_at")
   updatedAt       DateTime       @default(now()) @map(name: "updated_at")
   isActive        Boolean        @default(true)
-  customPrice     Decimal
+  customPrice     Decimal       
   description     String
   subscriptions   Subscription[]
   BillingDetail   BillingDetail? @relation(fields: [billingDetailId], references: [id])
@@ -126,7 +142,7 @@ model BillingDetail {
   combos        Combo[]
   subscriptions Subscription[]
   Billing       Billing?       @relation(fields: [billingId], references: [id])
-  billingId     Int?
+  billingId     Int?           @map("billing_id")
 
   @@map("billing_detail")
 }

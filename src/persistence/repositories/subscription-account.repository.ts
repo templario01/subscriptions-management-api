@@ -1,24 +1,43 @@
+import { GetSubscriptionAccount } from '@application/subscription-account/dtos/args/get-subscription-account.args'
 import { BadRequestException, Injectable, UnprocessableEntityException } from '@nestjs/common'
+import { NotFoundException } from '@nestjs/common/exceptions/not-found.exception'
 import { Prisma, SubscriptionAccount } from '@prisma/client'
 import { CreateSubscriptionAccountInput } from '../../application/subscription-account/dtos/inputs/create-subscription-account.input'
 import { SubscriptionWithPlatform } from '../../application/subscription-account/types/subscription-account.types'
 import { PrismaErrorsEnum } from '../../utils/prisma-errors'
 import { PrismaService } from '../services/prisma.service'
+import { PlatformRepository } from './platform.repository'
+import { plainToInstance } from 'class-transformer'
+import {
+  IPaginatedSubscriptionAccountModel,
+  SubscriptionAccountModel,
+} from '../../application/subscription-account/dtos/models/subscription-account.model'
+import { IEdgeType } from '../../utils/pagination/cursor-pagination'
 
 @Injectable()
 export class SubscriptionAccountRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService, private readonly platformRepo: PlatformRepository) {}
 
-  async createSubscriptionAccount({
-    email,
-    password,
-    platformUUID,
-  }: CreateSubscriptionAccountInput): Promise<SubscriptionWithPlatform> {
+  async createSubscriptionAccount(
+    { email, password, platformUUID, completePrice, isSoldBySlots, slotPrice, slots }: CreateSubscriptionAccountInput,
+    userId: number,
+  ): Promise<SubscriptionWithPlatform> {
     try {
+      const platform = await this.platformRepo.getPlatformByUUID(platformUUID)
+      if (!platform) {
+        throw new NotFoundException(`platform ${platformUUID} not found`)
+      }
+
+      await this.platformRepo.assignPlatform(platform.id, userId)
+
       const subscriptionAccount = await this.prisma.subscriptionAccount.create({
         data: {
           email,
           password,
+          completePrice,
+          isSoldBySlots,
+          slots,
+          slotPrice,
           platform: {
             connect: { uuid: platformUUID },
           },
@@ -59,5 +78,74 @@ export class SubscriptionAccountRepository {
         uuid,
       },
     })
+  }
+
+  async findByName(
+    { take, after, name }: GetSubscriptionAccount,
+    userId: number,
+  ): Promise<IPaginatedSubscriptionAccountModel> {
+    const where: Prisma.SubscriptionAccountWhereInput = {
+      isActive: true,
+      platform: {
+        managers: {
+          some: {
+            userId,
+          },
+        },
+      },
+      ...(name && {
+        OR: [
+          {
+            email: {
+              contains: name,
+              mode: 'insensitive',
+            },
+          },
+          {
+            platform: {
+              name: {
+                contains: name,
+                mode: 'insensitive',
+              },
+            },
+          },
+        ],
+      }),
+    }
+    const totalCount = await this.prisma.subscriptionAccount.count({ where })
+
+    const suscriptionAccounts = await this.prisma.subscriptionAccount.findMany({
+      where,
+      take: typeof take === 'number' ? take + 1 : undefined,
+      skip: after ? 1 : undefined,
+      cursor: after ? { uuid: after } : undefined,
+      orderBy: [{ createdAt: 'desc' }],
+      include: { platform: true },
+    })
+
+    const results = suscriptionAccounts.map(({ slotPrice, completePrice, ...account }) =>
+      plainToInstance(SubscriptionAccountModel, {
+        ...account,
+        slotPrice: slotPrice.toNumber(),
+        completePrice: completePrice.toNumber(),
+      }),
+    )
+    const hasNextPage = typeof take === 'number' ? results.length > take : false
+    if (hasNextPage) results.pop()
+
+    const lastItem = results[results?.length - 1]
+    const endCursor = lastItem?.uuid
+    const edges = results.map<IEdgeType<SubscriptionAccountModel>>((account) => ({
+      cursor: account.uuid,
+      node: account,
+    }))
+
+    return {
+      edges,
+      nodes: results,
+      hasNextPage,
+      endCursor,
+      totalCount,
+    }
   }
 }

@@ -21,10 +21,19 @@ input CreateAdminAccountInput {
 }
 
 input CreateSubscriptionAccountInput {
+  completePrice: Float!
   email: String!
+  isSoldBySlots: Boolean!
   password: String!
   platformUUID: String!
+  slotPrice: Float
+  slots: Float
 }
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
 
 input LoginUserInput {
   password: String!
@@ -40,23 +49,46 @@ type Mutation {
   updateUserAccount(data: UpdateAccountInput!): UserWithInfo!
 }
 
+type PaginatedSubscriptionAccountModel {
+  edges: [SubscriptionAccountModelEdge!]
+  endCursor: String
+  hasNextPage: Boolean!
+  nodes: [SubscriptionAccountModel!]
+  totalCount: Int!
+}
+
 type PlatformModel {
-  defaultPrice: Float!
   logo: String
   name: String!
+  slotPrice: Float
   uuid: String!
 }
 
 type Query {
+  getAllPlatforms: [PlatformModel!]!
+  getAllSuscriptionAccounts(after: String, name: String, take: Int = 10): PaginatedSubscriptionAccountModel!
   getCurrentUser: UserModel!
+  getManagedPlatforms: [PlatformModel!]!
   getSubscriptionAccounsByPlatform(platformUUID: String!): [SubscriptionAccountModel!]!
   getUserInfo(uuid: ID!): UserModel!
 }
 
 type SubscriptionAccountModel {
+  completePrice: Float!
+  createdAt: DateTime!
   email: String!
+  isActive: Boolean!
+  isSoldBySlots: Boolean
   password: String!
   platform: PlatformModel!
+  slotPrice: Float
+  updatedAt: DateTime!
+  uuid: String!
+}
+
+type SubscriptionAccountModelEdge {
+  cursor: String!
+  node: SubscriptionAccountModel!
 }
 
 input UpdateAccountInput {

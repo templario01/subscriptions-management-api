@@ -1,5 +1,5 @@
 import { Field, InputType } from '@nestjs/graphql'
-import { IsNotEmpty, IsString } from 'class-validator'
+import { IsBoolean, IsNotEmpty, IsNumber, IsPositive, IsString } from 'class-validator'
 
 @InputType()
 export class CreateSubscriptionAccountInput {
@@ -17,4 +17,25 @@ export class CreateSubscriptionAccountInput {
   @IsString()
   @IsNotEmpty()
   platformUUID: string
+
+  @Field()
+  @IsNumber()
+  @IsPositive()
+  @IsNotEmpty()
+  completePrice: number
+
+  @Field()
+  @IsBoolean()
+  @IsNotEmpty()
+  isSoldBySlots: boolean
+
+  @Field()
+  @IsNumber()
+  @IsPositive()
+  slots?: number
+
+  @Field()
+  @IsNumber()
+  @IsPositive()
+  slotPrice?: number
 }

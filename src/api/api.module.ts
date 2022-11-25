@@ -5,8 +5,9 @@ import { PassportModule } from '@nestjs/passport'
 import { AuthResolver } from './resolvers/auth.resolver'
 import { SubscriptionAccountResolver } from './resolvers/subscription-account.resolver'
 import { AuthController } from './controllers/auth.controller'
+import { PlatformResolver } from './resolvers/platform.resolver'
 
-const resolvers = [UserResolver, AuthResolver, SubscriptionAccountResolver]
+const resolvers = [UserResolver, AuthResolver, SubscriptionAccountResolver, PlatformResolver]
 const controllers = [AuthController]
 
 @Module({

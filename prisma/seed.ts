@@ -1,7 +1,7 @@
 import { Platform, PrismaClient, Role, User } from '@prisma/client'
 import { RolesEnum } from '../src/application/common/roles.enum'
 import { hash } from 'bcrypt'
-import { PlatformsEnum } from '../src/application/common/platforms.enum'
+import { PlatformLogo, PlatformsEnum } from '../src/application/common/platforms.enum'
 
 const prisma = new PrismaClient()
 
@@ -98,8 +98,8 @@ async function createPlatforms(): Promise<Platform[]> {
   const platformTasks = keys.map((key) => {
     return prisma.platform.upsert({
       where: { name: key },
-      create: { name: key },
-      update: { name: key },
+      create: { name: key, logo: PlatformLogo[key] },
+      update: { name: key, logo: PlatformLogo[key] },
     })
   })
 
