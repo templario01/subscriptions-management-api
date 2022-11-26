@@ -3,6 +3,7 @@
 
 generator client {
   provider = "prisma-client-js"
+    previewFeatures = ["interactiveTransactions", "fullTextSearch"]
 }
 
 datasource db {
@@ -76,20 +77,21 @@ model Subscription {
 }
 
 model SubscriptionAccount {
-  id            Int            @id @default(autoincrement())
-  uuid          String         @unique @default(cuid())
-  email         String
-  password      String
-  slotPrice     Decimal        @default(0) @map("slot_price")
-  completePrice Decimal        @default(0) @map("complete_price")
-  isSoldBySlots Boolean?       @map("is_sold_by_slots")
-  createdAt     DateTime       @default(now()) @map(name: "created_at")
-  updatedAt     DateTime       @default(now()) @map(name: "updated_at")
-  isActive      Boolean        @default(true)
-  platformId    Int            @map("platform_id")
-  slots         Int?
-  platform      Platform?      @relation(fields: [platformId], references: [id])
-  suscription   Subscription[]
+  id             Int            @id @default(autoincrement())
+  uuid           String         @unique @default(cuid())
+  email          String
+  password       String
+  slotPrice      Decimal        @default(0) @map("slot_price")
+  completePrice  Decimal        @default(0) @map("complete_price")
+  isSoldBySlots  Boolean?       @map("is_sold_by_slots")
+  createdAt      DateTime       @default(now()) @map(name: "created_at")
+  updatedAt      DateTime       @default(now()) @map(name: "updated_at")
+  isActive       Boolean        @default(true)
+  platformId     Int            @map("platform_id")
+  slots          Int?
+  availableSlots Int?
+  platform       Platform?      @relation(fields: [platformId], references: [id])
+  suscription    Subscription[]
 
   @@unique([email, platformId])
   @@map("subscription_account")
@@ -126,7 +128,7 @@ model Combo {
   createdAt       DateTime       @default(now()) @map(name: "created_at")
   updatedAt       DateTime       @default(now()) @map(name: "updated_at")
   isActive        Boolean        @default(true)
-  customPrice     Decimal       
+  customPrice     Decimal
   description     String
   subscriptions   Subscription[]
   BillingDetail   BillingDetail? @relation(fields: [billingDetailId], references: [id])

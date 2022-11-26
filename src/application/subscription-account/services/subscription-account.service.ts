@@ -3,7 +3,7 @@ import { plainToClass, plainToInstance } from 'class-transformer'
 
 import { SubscriptionAccountRepository } from '../../../persistence/repositories/subscription-account.repository'
 import { CreateSubscriptionAccountInput } from '../dtos/inputs/create-subscription-account.input'
-import { GetSubscriptionAccount } from '../dtos/args/get-subscription-account.args'
+import { GetSubscriptionAccountParams } from '../dtos/args/get-subscription-account.args'
 import { IPaginatedSubscriptionAccountModel, SubscriptionAccountModel } from '../dtos/models/subscription-account.model'
 import { ISubscriptionAccountService } from './subscription-account.service.interface'
 
@@ -45,7 +45,7 @@ export class SubscriptionAccountService implements ISubscriptionAccountService {
   }
 
   async getAllAccountsWithFilter(
-    params: GetSubscriptionAccount,
+    params: GetSubscriptionAccountParams,
     userId: number,
   ): Promise<IPaginatedSubscriptionAccountModel> {
     return this.subscriptionAccountRepo.findByName(params, userId)

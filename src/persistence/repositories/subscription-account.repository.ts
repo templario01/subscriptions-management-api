@@ -1,4 +1,4 @@
-import { GetSubscriptionAccount } from '@application/subscription-account/dtos/args/get-subscription-account.args'
+import { GetSubscriptionAccountParams } from '@application/subscription-account/dtos/args/get-subscription-account.args'
 import { BadRequestException, Injectable, UnprocessableEntityException } from '@nestjs/common'
 import { NotFoundException } from '@nestjs/common/exceptions/not-found.exception'
 import { Prisma, SubscriptionAccount } from '@prisma/client'
@@ -21,31 +21,36 @@ export class SubscriptionAccountRepository {
   async createSubscriptionAccount(
     { email, password, platformUUID, completePrice, isSoldBySlots, slotPrice, slots }: CreateSubscriptionAccountInput,
     userId: number,
-  ): Promise<SubscriptionWithPlatform> {
+  ) {
     try {
       const platform = await this.platformRepo.getPlatformByUUID(platformUUID)
       if (!platform) {
         throw new NotFoundException(`platform ${platformUUID} not found`)
       }
 
-      await this.platformRepo.assignPlatform(platform.id, userId)
+      const transactionResponse = await this.prisma.$transaction(async (prisma) => {
+        await this.platformRepo.assignPlatform(platform.id, userId)
 
-      const subscriptionAccount = await this.prisma.subscriptionAccount.create({
-        data: {
-          email,
-          password,
-          completePrice,
-          isSoldBySlots,
-          slots,
-          slotPrice,
-          platform: {
-            connect: { uuid: platformUUID },
+        const subscriptionAccount = await prisma.subscriptionAccount.create({
+          data: {
+            email,
+            password,
+            completePrice,
+            isSoldBySlots,
+            slots,
+            slotPrice,
+            availableSlots: slots,
+            platform: {
+              connect: { uuid: platformUUID },
+            },
           },
-        },
-        include: { platform: true },
+          include: { platform: true },
+        })
+
+        return subscriptionAccount
       })
 
-      return subscriptionAccount
+      return transactionResponse
     } catch (error) {
       const platform = await this.prisma.platform.findUnique({
         where: { uuid: platformUUID },
@@ -81,7 +86,7 @@ export class SubscriptionAccountRepository {
   }
 
   async findByName(
-    { take, after, name }: GetSubscriptionAccount,
+    { take, after, name }: GetSubscriptionAccountParams,
     userId: number,
   ): Promise<IPaginatedSubscriptionAccountModel> {
     const where: Prisma.SubscriptionAccountWhereInput = {

@@ -2,7 +2,7 @@ import { SessionData } from '@application/auth/dtos/response/auth.response'
 import { UseGuards } from '@nestjs/common'
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql'
 import { RolesEnum } from '../../application/common/roles.enum'
-import { GetSubscriptionAccount } from '../../application/subscription-account/dtos/args/get-subscription-account.args'
+import { GetSubscriptionAccountParams } from '../../application/subscription-account/dtos/args/get-subscription-account.args'
 import { CreateSubscriptionAccountInput } from '../../application/subscription-account/dtos/inputs/create-subscription-account.input'
 import {
   PaginatedSubscriptionAccountModel,
@@ -37,10 +37,10 @@ export class SubscriptionAccountResolver {
 
   @Roles(RolesEnum.ADMIN)
   @UseGuards(GqlJwtAuthGuard, RoleGuard)
-  @Query(() => PaginatedSubscriptionAccountModel, { name: 'getAllSuscriptionAccounts' })
-  getAllSuscriptionAccounts(
+  @Query(() => PaginatedSubscriptionAccountModel, { name: 'getAllSubscriptionAccounts' })
+  getAllSubscriptionAccounts(
     @CurrentUser() { id }: SessionData,
-    @Args('') params: GetSubscriptionAccount,
+    @Args('') params: GetSubscriptionAccountParams,
   ): Promise<PaginatedSubscriptionAccountModel> {
     return this.subscriptionAccountService.getAllAccountsWithFilter(params, id)
   }

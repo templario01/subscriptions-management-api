@@ -34,6 +34,12 @@ export class SubscriptionAccountModel {
 
   @Field({ nullable: true })
   slotPrice?: number
+
+  @Field({ nullable: true })
+  slots?: number
+
+  @Field({ nullable: true })
+  availableSlots?: number
 }
 
 @ObjectType('PaginatedSubscriptionAccountModel')

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { GetSubscriptionAccount } from '../dtos/args/get-subscription-account.args'
+import { GetSubscriptionAccountParams } from '../dtos/args/get-subscription-account.args'
 import { CreateSubscriptionAccountInput } from '../dtos/inputs/create-subscription-account.input'
 import { IPaginatedSubscriptionAccountModel, SubscriptionAccountModel } from '../dtos/models/subscription-account.model'
 
@@ -11,7 +11,7 @@ export abstract class ISubscriptionAccountService {
   ): Promise<SubscriptionAccountModel>
   abstract getSubscriptionAccountsByPlatform(platformUUID: string): Promise<SubscriptionAccountModel[]>
   abstract getAllAccountsWithFilter(
-    params: GetSubscriptionAccount,
+    params: GetSubscriptionAccountParams,
     userId: number,
   ): Promise<IPaginatedSubscriptionAccountModel>
 }
