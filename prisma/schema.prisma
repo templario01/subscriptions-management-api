@@ -106,7 +106,6 @@ model Platform {
   logo                 String?
   subscriptionAccounts SubscriptionAccount[]
   managers             UserManagePlatform[]
-  manageId             Int?                  @map("manage_id")
 
   @@map("platform")
 }

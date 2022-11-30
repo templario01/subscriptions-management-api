@@ -1,6 +1,6 @@
 import { PlatformModel } from '@application/platform/dtos/models/platform.model'
 import { Logger, Injectable, HttpException, HttpStatus } from '@nestjs/common'
-import { Platform } from '@prisma/client'
+import { Platform, Prisma } from '@prisma/client'
 import { plainToInstance } from 'class-transformer'
 import { PrismaService } from '../services/prisma.service'
 
@@ -19,18 +19,23 @@ export class PlatformRepository {
     })
   }
 
-  async getPlatformsByName(name?: string): Promise<PlatformModel[]> {
+  async getPlatformsByName(userId: number, name?: string): Promise<PlatformModel[]> {
     try {
-      const platforms = await this.prisma.platform.findMany({
-        ...(name && {
-          where: {
-            name: {
-              contains: name,
-              mode: 'insensitive',
-            },
-          },
-        }),
-      })
+      const nameFilter = name ? `and (lower(p."name") like lower('%${name}%'))` : ''
+
+      const sqlQuery: readonly string[] = [
+        `select p.uuid, p.logo, p."name", u.id as "userId"  
+        from platform p 
+        left join user_manage_platform ump inner join "user" u 
+        on u.id = ump.user_id 
+        on ump.platform_id = p.id 
+        where (u.id is null or u.id = ${userId}) ${nameFilter}
+        group by p.id, u.id`,
+      ]
+
+      const platforms = await this.prisma.$queryRaw<{ uuid: string; logo?: string; name: string; userId?: string }[]>(
+        Prisma.sql(sqlQuery),
+      )
 
       const parsedPlatforms = platforms.map(({ uuid, name, logo }) =>
         plainToInstance(PlatformModel, { uuid, name, logo }),

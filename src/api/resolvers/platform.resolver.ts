@@ -3,7 +3,7 @@ import { RolesEnum } from '@application/common/roles.enum'
 import { PlatformModel } from '@application/platform/dtos/models/platform.model'
 import { IPlatformService } from '@application/platform/services/platform.service.interface'
 import { UseGuards } from '@nestjs/common'
-import { Query, Resolver } from '@nestjs/graphql'
+import { Args, Query, Resolver } from '@nestjs/graphql'
 import { CurrentUser } from '../decorators/current-user.decorator'
 import { Roles } from '../decorators/role.decorator'
 import { GqlJwtAuthGuard } from '../guards/jwt-auth.guard'
@@ -16,8 +16,11 @@ export class PlatformResolver {
   @Roles(RolesEnum.ADMIN)
   @UseGuards(GqlJwtAuthGuard, RoleGuard)
   @Query(() => [PlatformModel], { name: 'getAllPlatforms' })
-  getAllPlatforms(): Promise<PlatformModel[]> {
-    return this.platformService.getPlatforms()
+  getAllPlatforms(
+    @CurrentUser() { id }: SessionData,
+    @Args('name', { type: () => String, nullable: true }) name?: string,
+  ): Promise<PlatformModel[]> {
+    return this.platformService.getPlatforms(id, name)
   }
 
   @Roles(RolesEnum.ADMIN)

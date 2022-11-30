@@ -65,7 +65,7 @@ type PlatformModel {
 }
 
 type Query {
-  getAllPlatforms: [PlatformModel!]!
+  getAllPlatforms(name: String): [PlatformModel!]!
   getAllSubscriptionAccounts(after: String, name: String, take: Int = 10): PaginatedSubscriptionAccountModel!
   getCurrentUser: UserModel!
   getManagedPlatforms: [PlatformModel!]!
