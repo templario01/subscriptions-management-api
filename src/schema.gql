@@ -7,17 +7,26 @@ type AccessTokenResponseModel {
   refreshToken: String!
 }
 
-input CreateAccountInput {
-  email: String
-  firstName: String
-  lastName: String
-  password: String
-  phone: String!
-}
-
 input CreateAdminAccountInput {
   email: String!
   password: String!
+}
+
+input CreateCustomerInput {
+  alias: String
+  firstName: String
+  lastName: String
+  phone: String!
+}
+
+input CreateCustomerSubscriptionInput {
+  billingDate: DateTime!
+  customPackagePrice: Float!
+  customer: CreateCustomerInput!
+  description: String!
+  discountPrice: Float!
+  subscriptions: [CreateSubscriptionInput!]!
+  totalPrice: Float!
 }
 
 input CreateSubscriptionAccountInput {
@@ -28,6 +37,12 @@ input CreateSubscriptionAccountInput {
   platformUUID: String!
   slotPrice: Float
   slots: Float
+}
+
+input CreateSubscriptionInput {
+  customPrice: Float!
+  slotsNumber: Int!
+  subscriptionAccountUUID: String!
 }
 
 """
@@ -41,8 +56,8 @@ input LoginUserInput {
 }
 
 type Mutation {
-  activeAccount(data: CreateAccountInput!): UserWithInfo!
   createAdminAccount(createAdminAccountInput: CreateAdminAccountInput!): UserWithInfo!
+  createCustomerSubscriptions(data: CreateCustomerSubscriptionInput!): [SubscriptionModel!]!
   createSubscriptionAccount(data: CreateSubscriptionAccountInput!): SubscriptionAccountModel!
   getRefreshToken(token: String!): AccessTokenResponseModel!
   login(loginUserInput: LoginUserInput!): AccessTokenResponseModel!
@@ -91,6 +106,16 @@ type SubscriptionAccountModel {
 type SubscriptionAccountModelEdge {
   cursor: String!
   node: SubscriptionAccountModel!
+}
+
+type SubscriptionModel {
+  createdAt: DateTime!
+  customPrice: Float!
+  isActive: Boolean!
+  screenSlots: Int!
+  suscriptionAccount: [SubscriptionAccountModel!]!
+  updatedAt: DateTime!
+  uuid: ID!
 }
 
 input UpdateAccountInput {

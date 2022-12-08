@@ -2,8 +2,8 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
-    previewFeatures = ["interactiveTransactions", "fullTextSearch"]
+  provider        = "prisma-client-js"
+  previewFeatures = ["interactiveTransactions", "fullTextSearch"]
 }
 
 datasource db {
@@ -12,21 +12,21 @@ datasource db {
 }
 
 model User {
-  id            Int                  @id @default(autoincrement())
-  uuid          String               @unique @default(cuid())
-  createdAt     DateTime             @default(now()) @map(name: "created_at")
-  updatedAt     DateTime             @default(now()) @map(name: "updated_at")
-  refreshToken  String?              @map(name: "refresh_token")
-  username      String?              @unique
-  phone         String?              @unique
-  password      String               @map(name: "password_hash")
-  isActive      Boolean              @default(true)
-  lastSession   DateTime             @default(now()) @map(name: "last_session")
-  userInfo      UserInfo?
-  roles         Role[]
-  subscriptions Subscription[]
-  billings      Billing[]
-  platforms     UserManagePlatform[]
+  id           Int                  @id @default(autoincrement())
+  uuid         String               @unique @default(cuid())
+  createdAt    DateTime             @default(now()) @map(name: "created_at")
+  updatedAt    DateTime             @default(now()) @map(name: "updated_at")
+  refreshToken String?              @map(name: "refresh_token")
+  username     String?              @unique
+  phone        String?              @unique
+  password     String               @map(name: "password_hash")
+  isActive     Boolean              @default(true)
+  lastSession  DateTime             @default(now()) @map(name: "last_session")
+  userInfo     UserInfo?
+  roles        Role[]
+  billings     Billing[]
+  platforms    UserManagePlatform[]
+  packages     CustomerPackage?
 
   @@map("user")
 }
@@ -60,15 +60,11 @@ model Subscription {
   uuid               String                @unique @default(cuid())
   createdAt          DateTime              @default(now()) @map(name: "created_at")
   updatedAt          DateTime              @default(now()) @map(name: "updated_at")
-  user               User                  @relation(fields: [userId], references: [id])
-  userId             Int
   customPrice        Decimal
-  startDate          DateTime              @map(name: "start_date")
-  billingDate        DateTime              @map(name: "billing_date")
   screenSlots        Int                   @map("screen_slots")
   isActive           Boolean               @default(true)
-  comboId            Int                   @map("combo_id")
-  combo              Combo?                @relation(fields: [comboId], references: [id])
+  packageId          Int                   @map("package_id")
+  customerPackage    CustomerPackage?      @relation(fields: [packageId], references: [id])
   BillingDetail      BillingDetail?        @relation(fields: [billingDetailId], references: [id])
   billingDetailId    Int?
   suscriptionAccount SubscriptionAccount[]
@@ -121,29 +117,34 @@ model UserManagePlatform {
   @@map("user_manage_platform")
 }
 
-model Combo {
-  id              Int            @id @default(autoincrement())
-  uuid            String         @unique @default(cuid())
-  createdAt       DateTime       @default(now()) @map(name: "created_at")
-  updatedAt       DateTime       @default(now()) @map(name: "updated_at")
-  isActive        Boolean        @default(true)
-  customPrice     Decimal
-  description     String
-  subscriptions   Subscription[]
-  BillingDetail   BillingDetail? @relation(fields: [billingDetailId], references: [id])
-  billingDetailId Int?
+model CustomerPackage {
+  id                 Int            @id @default(autoincrement())
+  uuid               String         @unique @default(cuid())
+  createdAt          DateTime       @default(now()) @map(name: "created_at")
+  updatedAt          DateTime       @default(now()) @map(name: "updated_at")
+  isActive           Boolean        @default(true)
+  totalPrice         Decimal
+  customPackagePrice Decimal
+  discountPrice      Decimal
+  description        String
+  billingDate        DateTime       @map(name: "billing_date")
+  subscriptions      Subscription[]
+  BillingDetail      BillingDetail? @relation(fields: [billingDetailId], references: [id])
+  billingDetailId    Int?
+  user               User?          @relation(fields: [userId], references: [id])
+  userId             Int?           @unique
 
-  @@map("combo")
+  @@map("customer_package")
 }
 
 model BillingDetail {
-  quantity      Int
-  id            Int            @id @default(autoincrement())
-  uuid          String         @unique @default(cuid())
-  combos        Combo[]
-  subscriptions Subscription[]
-  Billing       Billing?       @relation(fields: [billingId], references: [id])
-  billingId     Int?           @map("billing_id")
+  quantity        Int
+  id              Int               @id @default(autoincrement())
+  uuid            String            @unique @default(cuid())
+  costumerPackage CustomerPackage[]
+  subscriptions   Subscription[]
+  Billing         Billing?          @relation(fields: [billingId], references: [id])
+  billingId       Int?              @map("billing_id")
 
   @@map("billing_detail")
 }

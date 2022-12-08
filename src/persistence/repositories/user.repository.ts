@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common'
-import * as bcrypt from 'bcrypt'
 import { User } from '@prisma/client'
 import { CreateAccountInput } from '../../application/auth/dtos/inputs/create-account.input'
 import { RolesEnum } from '../../application/common/roles.enum'
@@ -7,6 +6,7 @@ import { UpdateAccountInput } from '../../application/user/dtos/input/update-use
 import { UserWithRoles, UserWithUserInfo } from '../../application/user/types/user.types'
 import { PrismaService } from '../services/prisma.service'
 import { CreateAdminAccountInput } from '../../application/auth/dtos/inputs/create-admin-account.input'
+import { encryptPassword } from '../../utils/user.utils'
 
 @Injectable()
 export class UserRepository {
@@ -27,7 +27,7 @@ export class UserRepository {
     isActive,
     ...userInfo
   }: UpdateAccountInput): Promise<UserWithUserInfo> {
-    const passwordEncrypted = password ? await this.encryptPassword(password) : await this.encryptPassword(phone)
+    const passwordEncrypted = password ? await encryptPassword(password) : await encryptPassword(phone)
     return this.prisma.user.update({
       where: { uuid },
       data: {
@@ -79,7 +79,7 @@ export class UserRepository {
 
   async createAdminAccount({ password, email, ...userInfo }: CreateAdminAccountInput, url: string) {
     const roles = [RolesEnum.ADMIN, RolesEnum.USER]
-    const passwordEncrypted = await this.encryptPassword(password)
+    const passwordEncrypted = await encryptPassword(password)
     return this.prisma.user.create({
       data: {
         username: email,
@@ -97,7 +97,7 @@ export class UserRepository {
     { phone, email, password, ...userInfo }: CreateAccountInput,
     url: string,
   ): Promise<UserWithUserInfo> {
-    const passwordEncrypted = password ? await this.encryptPassword(password) : await this.encryptPassword(phone)
+    const passwordEncrypted = password ? await encryptPassword(password) : await encryptPassword(phone)
     return this.prisma.user.create({
       data: {
         username: email,
@@ -121,10 +121,5 @@ export class UserRepository {
       },
       include: { roles: true, userInfo: true },
     })
-  }
-
-  private async encryptPassword(pass: string): Promise<string> {
-    const salt = await bcrypt.genSalt(10)
-    return bcrypt.hash(pass, salt)
   }
 }

@@ -5,6 +5,8 @@ import { AuthService } from './auth/services/auth.service'
 import { IAuthService } from './auth/services/auth.service.interface'
 import { JwtStrategy } from './auth/strategies/jwt.strategy'
 import { LocalStrategy } from './auth/strategies/local.strategy'
+import { CustomerSubscriptionService } from './customer-subscription/services/customer-subscription.service'
+import { ICustomerSubscriptionService } from './customer-subscription/services/customer-subscription.service.interface'
 import { PlatformService } from './platform/services/platform.service'
 import { IPlatformService } from './platform/services/platform.service.interface'
 import { SubscriptionAccountService } from './subscription-account/services/subscription-account.service'
@@ -17,6 +19,7 @@ const services = [
   provideService(ISubscriptionAccountService, SubscriptionAccountService),
   provideService(IUserService, UserService),
   provideService(IPlatformService, PlatformService),
+  provideService(ICustomerSubscriptionService, CustomerSubscriptionService),
 ]
 const strategies = [LocalStrategy, JwtStrategy]
 

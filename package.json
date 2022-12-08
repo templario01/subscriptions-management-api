@@ -25,9 +25,9 @@
     "prisma:migrate:seed": "npx prisma migrate dev && ts-node ./prisma/seed.ts"
   },
   "dependencies": {
-    "@nestjs/cli": "^8.0.0",
     "@nestjs/apollo": "^10.0.17",
     "@nestjs/axios": "^0.1.0",
+    "@nestjs/cli": "^8.0.0",
     "@nestjs/common": "^8.0.0",
     "@nestjs/config": "^2.2.0",
     "@nestjs/core": "^8.0.0",
@@ -43,6 +43,7 @@
     "class-validator": "^0.13.2",
     "fs": "^0.0.1-security",
     "graphql": "^16.5.0",
+    "helmet": "^6.0.1",
     "joi": "^17.6.0",
     "nanoid": "^3.1.20",
     "passport-jwt": "^4.0.0",
@@ -52,9 +53,9 @@
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
-    "whatsapp-web.js": "^1.17.1",
     "ts-node": "^10.0.0",
-    "typescript": "^4.3.5"
+    "typescript": "^4.3.5",
+    "whatsapp-web.js": "^1.17.1"
   },
   "devDependencies": {
     "@nestjs/schematics": "^8.0.0",

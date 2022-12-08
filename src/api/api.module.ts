@@ -6,8 +6,15 @@ import { AuthResolver } from './resolvers/auth.resolver'
 import { SubscriptionAccountResolver } from './resolvers/subscription-account.resolver'
 import { AuthController } from './controllers/auth.controller'
 import { PlatformResolver } from './resolvers/platform.resolver'
+import { CustomerSubscriptionResolver } from './resolvers/customer-subscription.resolver'
 
-const resolvers = [UserResolver, AuthResolver, SubscriptionAccountResolver, PlatformResolver]
+const resolvers = [
+  UserResolver,
+  AuthResolver,
+  SubscriptionAccountResolver,
+  PlatformResolver,
+  CustomerSubscriptionResolver,
+]
 const controllers = [AuthController]
 
 @Module({

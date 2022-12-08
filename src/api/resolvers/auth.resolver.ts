@@ -35,11 +35,4 @@ export class AuthResolver {
   getRefreshToken(@Args('token') token: string): Promise<AccessTokenResponseModel> {
     return this.authService.getRefreshToken(token)
   }
-
-  @Roles(RolesEnum.ADMIN)
-  @UseGuards(GqlJwtAuthGuard, RoleGuard)
-  @Mutation(() => UserWithInfoModel, { name: 'activeAccount' })
-  activeAccount(@Args('data') params: CreateAccountInput): Promise<UserWithInfoModel> {
-    return this.authService.createCustomerAccount(params)
-  }
 }

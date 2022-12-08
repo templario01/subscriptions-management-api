@@ -6,7 +6,6 @@ import { SessionData, TokenResponse } from '../dtos/response/auth.response'
 import { UserWithRoles } from '../../user/types/user.types'
 import { AccessTokenResponseModel } from '../dtos/models/accesstoken-response.model'
 import { EnvConfigService } from '../../../config/env-config.service'
-import { CreateAccountInput } from '../dtos/inputs/create-account.input'
 import { plainToClass } from 'class-transformer'
 import { UserWithInfoModel } from '../../user/dtos/models/user-with-info.model'
 import { nanoid } from 'nanoid'
@@ -106,17 +105,6 @@ export class AuthService implements IAuthService {
     }
 
     return this.validateUserByPhone(username, password)
-  }
-
-  async createCustomerAccount(input: CreateAccountInput): Promise<UserWithInfoModel> {
-    const user = await this.userRepository.findUserByPhone(input.phone)
-    if (user) {
-      throw new HttpException('email or phone number already exists', HttpStatus.BAD_REQUEST)
-    }
-    const avatarUrl = this.generateImageUrl()
-    const account = await this.userRepository.createAccount(input, avatarUrl)
-
-    return plainToClass(UserWithInfoModel, account)
   }
 
   async createAdminAccount(input: CreateAdminAccountInput): Promise<UserWithInfoModel> {
