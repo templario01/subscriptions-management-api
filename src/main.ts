@@ -3,6 +3,7 @@ import { NestFactory } from '@nestjs/core'
 import { AppModule } from './app.module'
 import { urlencoded, json } from 'express'
 import helmet from 'helmet'
+import * as cookieParser from 'cookie-parser'
 
 async function bootstrap() {
   const ENV = process.env.NODE_ENV || 'development'
@@ -13,11 +14,19 @@ async function bootstrap() {
   app.use(json({ limit: '50mb' }))
   app.use(urlencoded({ extended: true, limit: '50mb' }))
   app.enableCors()
-  app.use(helmet())
+  app.use(
+    helmet({
+      contentSecurityPolicy: false,
+      crossOriginEmbedderPolicy: false,
+    }),
+    cookieParser(),
+  )
   app.useGlobalPipes(new ValidationPipe())
   await app.listen(PORT, () => {
     Logger.verbose(`Starting application in ${ENV} environment`, AppModule.name)
-    Logger.verbose(`Starting application on port ${PORT}`, AppModule.name)
+    if (ENV === 'development') {
+      Logger.verbose(`Server running on http://localhost:${PORT}/graphql`, AppModule.name)
+    }
   })
 }
 bootstrap()

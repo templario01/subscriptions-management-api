@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { plainToInstance } from 'class-transformer'
-import { UserSubscriptionRepository } from '../../../persistence/repositories/user-subscription.repository'
+import { CustomerSubscriptionRepository } from '../../../persistence/repositories/customer-subscription.repository'
 import { SubscriptionAccountModel } from '../../subscription-account/dtos/models/subscription-account.model'
 import { CreateCustomerSubscriptionInput } from '../dtos/inputs/create-customer-subscription.input'
 import { SubscriptionModel } from '../dtos/models/subscription.model'
@@ -8,7 +8,7 @@ import { ICustomerSubscriptionService } from './customer-subscription.service.in
 
 @Injectable()
 export class CustomerSubscriptionService implements ICustomerSubscriptionService {
-  constructor(private readonly userSubscriptionRepository: UserSubscriptionRepository) {}
+  constructor(private readonly userSubscriptionRepository: CustomerSubscriptionRepository) {}
 
   async createCustomerSubscription(input: CreateCustomerSubscriptionInput): Promise<SubscriptionModel[]> {
     const subscriptions = await this.userSubscriptionRepository.creatSubscriptions(input)

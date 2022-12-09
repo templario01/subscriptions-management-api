@@ -24,24 +24,57 @@ model User {
   lastSession  DateTime             @default(now()) @map(name: "last_session")
   userInfo     UserInfo?
   roles        Role[]
-  billings     Billing[]
   platforms    UserManagePlatform[]
-  packages     CustomerPackage?
 
   @@map("user")
 }
 
+model Customer {
+  id         Int              @id @default(autoincrement())
+  uuid       String           @unique @default(cuid())
+  phone      String           @unique
+  code       String
+  userInfoId Int?
+  packages   CustomerPackage?
+  userInfo   UserInfo?
+  billings   Billing[]
+
+  @@map("customer")
+}
+
+model CustomerPackage {
+  id                 Int            @id @default(autoincrement())
+  uuid               String         @unique @default(cuid())
+  createdAt          DateTime       @default(now()) @map(name: "created_at")
+  updatedAt          DateTime       @default(now()) @map(name: "updated_at")
+  isActive           Boolean        @default(true)
+  totalPrice         Decimal
+  customPackagePrice Decimal
+  discountPrice      Decimal
+  description        String
+  billingDate        DateTime       @map(name: "billing_date")
+  subscriptions      Subscription[]
+  BillingDetail      BillingDetail? @relation(fields: [billingDetailId], references: [id])
+  billingDetailId    Int?
+  customer           Customer?      @relation(fields: [customerId], references: [id])
+  customerId         Int?           @unique
+
+  @@map("customer_package")
+}
+
 model UserInfo {
-  id        Int      @id @default(autoincrement())
-  uuid      String   @unique @default(cuid())
-  createdAt DateTime @default(now()) @map(name: "created_at")
-  updatedAt DateTime @default(now()) @map(name: "updated_at")
-  lastName  String?  @map(name: "last_name")
-  firstName String?  @map(name: "first_name")
-  alias     String?
-  avatar    String
-  user      User     @relation(fields: [userId], references: [id])
-  userId    Int      @unique
+  id         Int       @id @default(autoincrement())
+  uuid       String    @unique @default(cuid())
+  createdAt  DateTime  @default(now()) @map(name: "created_at")
+  updatedAt  DateTime  @default(now()) @map(name: "updated_at")
+  lastName   String?   @map(name: "last_name")
+  firstName  String?   @map(name: "first_name")
+  alias      String?
+  avatar     String
+  user       User?     @relation(fields: [userId], references: [id])
+  userId     Int?      @unique
+  customer   Customer? @relation(fields: [customerId], references: [id])
+  customerId Int?      @unique
 
   @@map("user_info")
 }
@@ -117,26 +150,6 @@ model UserManagePlatform {
   @@map("user_manage_platform")
 }
 
-model CustomerPackage {
-  id                 Int            @id @default(autoincrement())
-  uuid               String         @unique @default(cuid())
-  createdAt          DateTime       @default(now()) @map(name: "created_at")
-  updatedAt          DateTime       @default(now()) @map(name: "updated_at")
-  isActive           Boolean        @default(true)
-  totalPrice         Decimal
-  customPackagePrice Decimal
-  discountPrice      Decimal
-  description        String
-  billingDate        DateTime       @map(name: "billing_date")
-  subscriptions      Subscription[]
-  BillingDetail      BillingDetail? @relation(fields: [billingDetailId], references: [id])
-  billingDetailId    Int?
-  user               User?          @relation(fields: [userId], references: [id])
-  userId             Int?           @unique
-
-  @@map("customer_package")
-}
-
 model BillingDetail {
   quantity        Int
   id              Int               @id @default(autoincrement())
@@ -154,8 +167,8 @@ model Billing {
   uuid           String          @unique @default(cuid())
   createdAt      DateTime        @default(now()) @map(name: "created_at")
   totalAmount    Decimal
-  userId         Int             @map("user_id")
-  user           User            @relation(fields: [userId], references: [id])
+  customerId     Int             @map("user_id")
+  customer       Customer        @relation(fields: [customerId], references: [id])
   billingDetails BillingDetail[]
 
   @@map("billing")

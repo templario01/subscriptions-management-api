@@ -1,20 +1,25 @@
-import { BadRequestException, Injectable, Logger, UnprocessableEntityException } from '@nestjs/common'
+import {
+  BadRequestException,
+  NotFoundException,
+  Injectable,
+  Logger,
+  UnprocessableEntityException,
+} from '@nestjs/common'
 import { Prisma } from '@prisma/client'
-import { RolesEnum } from '../../application/common/roles.enum'
 import { CreateCustomerSubscriptionInput } from '../../application/customer-subscription/dtos/inputs/create-customer-subscription.input'
 import { CreateCustomerInput } from '../../application/customer-subscription/dtos/inputs/create-customer.input'
 import { CreateSubscriptionInput } from '../../application/customer-subscription/dtos/inputs/create-subscription.input'
 import { SubscriptionWithAccount } from '../../application/customer-subscription/types/subscription.types'
-import { encryptPassword } from '../../utils/user.utils'
 import { PrismaService } from '../services/prisma.service'
 import { UserRepository } from './user.repository'
+import { customAlphabet } from 'nanoid/async'
 
 const ROBOHASH_HOST = 'https://robohash.org'
 @Injectable()
-export class UserSubscriptionRepository {
+export class CustomerSubscriptionRepository {
   private readonly logger: Logger
   constructor(private readonly prisma: PrismaService, private readonly userRepository: UserRepository) {
-    this.logger = new Logger(UserSubscriptionRepository.name)
+    this.logger = new Logger(CustomerSubscriptionRepository.name)
   }
 
   async creatSubscriptions({
@@ -27,7 +32,7 @@ export class UserSubscriptionRepository {
         const newCustomer = await this.createCustomer(prismaClient, customer)
         const customerPackage = await prismaClient.customerPackage.create({
           data: {
-            user: {
+            customer: {
               connect: {
                 id: newCustomer.id,
               },
@@ -53,18 +58,19 @@ export class UserSubscriptionRepository {
   }
 
   async createCustomer(prismaClient: Prisma.TransactionClient, { phone, ...input }: CreateCustomerInput) {
-    const customer = await this.prisma.user.findFirst({
+    const customer = await this.prisma.customer.findFirst({
       where: {
         phone,
       },
-      rejectOnNotFound: false,
     })
+
     if (customer) {
       throw new BadRequestException(`cliente con el numero ${phone} ya ha sido registrado`)
     }
 
-    const password = await encryptPassword(phone)
-    return prismaClient.user.create({
+    const randomCode = customAlphabet('0123456789ABCDEFGHIJKLMNOPQRSTUVXYZ', 4)
+
+    return prismaClient.customer.create({
       data: {
         userInfo: {
           create: {
@@ -72,13 +78,8 @@ export class UserSubscriptionRepository {
             ...input,
           },
         },
-        roles: {
-          connect: {
-            name: RolesEnum.USER,
-          },
-        },
         phone,
-        password,
+        code: await randomCode(),
       },
     })
   }
@@ -88,10 +89,16 @@ export class UserSubscriptionRepository {
     input: CreateSubscriptionInput,
     cutomerPackageUUID: string,
   ): Promise<SubscriptionWithAccount> {
-    const { availableSlots, email, platform, id } = await this.prisma.subscriptionAccount.findUnique({
+    const account = await this.prisma.subscriptionAccount.findFirst({
       where: { uuid: input.subscriptionAccountUUID },
       include: { platform: true },
     })
+
+    if (!account) {
+      throw new NotFoundException(`account ${input.subscriptionAccountUUID} does not exist`)
+    }
+
+    const { availableSlots, email, platform, id } = account
     if (availableSlots === 0 || input.slotsNumber > availableSlots) {
       throw new BadRequestException(`No hay slots disponibles para la cuenta ${email} de ${platform.name}`)
     }
@@ -111,13 +118,6 @@ export class UserSubscriptionRepository {
         customPrice: input.customPrice,
         screenSlots: input.slotsNumber,
       },
-      include: {
-        suscriptionAccount: {
-          include: {
-            platform: true,
-          },
-        },
-      },
     })
 
     await prismaClient.subscriptionAccount.update({
@@ -129,6 +129,15 @@ export class UserSubscriptionRepository {
       },
     })
 
-    return subscription
+    return prismaClient.subscription.findUnique({
+      where: { id: subscription.id },
+      include: {
+        suscriptionAccount: {
+          include: {
+            platform: true,
+          },
+        },
+      },
+    })
   }
 }

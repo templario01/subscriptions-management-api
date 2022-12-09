@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common'
 import { PlatformRepository } from './repositories/platform.repository'
 import { SubscriptionAccountRepository } from './repositories/subscription-account.repository'
 import { UserRepository } from './repositories/user.repository'
-import { UserSubscriptionRepository } from './repositories/user-subscription.repository'
+import { CustomerSubscriptionRepository } from './repositories/customer-subscription.repository'
 import { PrismaService } from './services/prisma.service'
 
 const services = [
@@ -10,7 +10,7 @@ const services = [
   PrismaService,
   SubscriptionAccountRepository,
   PlatformRepository,
-  UserSubscriptionRepository,
+  CustomerSubscriptionRepository,
 ]
 
 @Module({
