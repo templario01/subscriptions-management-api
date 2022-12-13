@@ -1,5 +1,6 @@
 import { Field, Float, GraphQLISODateTime, InputType } from '@nestjs/graphql'
-import { IsDate, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, ValidateNested } from 'class-validator'
+import { IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, ValidateNested } from 'class-validator'
+import { BillingStatusEnum } from '../enums/billing.enum'
 import { CreateCustomerInput } from './create-customer.input'
 import { CreateSubscriptionInput } from './create-subscription.input'
 
@@ -37,4 +38,9 @@ export class CreateCustomerSubscriptionInput {
   @IsDate()
   @Field(() => GraphQLISODateTime)
   billingDate: Date
+
+  @IsEnum(BillingStatusEnum)
+  @Field(() => BillingStatusEnum)
+  @IsNotEmpty()
+  status: BillingStatusEnum
 }

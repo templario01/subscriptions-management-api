@@ -7,6 +7,12 @@ type AccessTokenResponseModel {
   refreshToken: String!
 }
 
+"""estado de pago de servicios"""
+enum BillingStatusEnum {
+  PAID
+  PENDING
+}
+
 input CreateAdminAccountInput {
   email: String!
   password: String!
@@ -25,6 +31,7 @@ input CreateCustomerSubscriptionInput {
   customer: CreateCustomerInput!
   description: String!
   discountPrice: Float!
+  status: BillingStatusEnum!
   subscriptions: [CreateSubscriptionInput!]!
   totalPrice: Float!
 }

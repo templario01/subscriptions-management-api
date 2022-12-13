@@ -5,7 +5,7 @@ import {
   Logger,
   UnprocessableEntityException,
 } from '@nestjs/common'
-import { Prisma } from '@prisma/client'
+import { BillingStatus, Prisma } from '@prisma/client'
 import { CreateCustomerSubscriptionInput } from '../../application/customer-subscription/dtos/inputs/create-customer-subscription.input'
 import { CreateCustomerInput } from '../../application/customer-subscription/dtos/inputs/create-customer.input'
 import { CreateSubscriptionInput } from '../../application/customer-subscription/dtos/inputs/create-subscription.input'
@@ -13,6 +13,7 @@ import { SubscriptionWithAccount } from '../../application/customer-subscription
 import { PrismaService } from '../services/prisma.service'
 import { UserRepository } from './user.repository'
 import { customAlphabet } from 'nanoid/async'
+import { DateTime } from 'luxon'
 
 const ROBOHASH_HOST = 'https://robohash.org'
 @Injectable()
@@ -30,6 +31,29 @@ export class CustomerSubscriptionRepository {
     try {
       const transactionResponse = await this.prisma.$transaction(async (prismaClient) => {
         const newCustomer = await this.createCustomer(prismaClient, customer)
+        const newBilling = await prismaClient.billing.create({
+          data: {
+            customer: {
+              connect: {
+                id: newCustomer.id,
+              },
+            },
+            status: input.status,
+            totalAmount: input.totalPrice,
+          },
+        })
+        const billingNextMonth = await prismaClient.billing.create({
+          data: {
+            createdAt: DateTime.fromJSDate(newBilling.createdAt).plus({ month: 1 }).toJSDate(),
+            customer: {
+              connect: {
+                id: newCustomer.id,
+              },
+            },
+            status: BillingStatus.PENDING,
+            totalAmount: input.totalPrice,
+          },
+        })
         const customerPackage = await prismaClient.customerPackage.create({
           data: {
             customer: {
@@ -37,9 +61,36 @@ export class CustomerSubscriptionRepository {
                 id: newCustomer.id,
               },
             },
+            BillingDetail: {
+              create: {
+                quantity: 1,
+                Billing: {
+                  connect: {
+                    id: newBilling.id,
+                  },
+                },
+              },
+            },
             ...input,
           },
         })
+
+        await prismaClient.billingDetail.create({
+          data: {
+            quantity: 1,
+            Billing: {
+              connect: {
+                id: billingNextMonth.id,
+              },
+            },
+            costumerPackage: {
+              connect: {
+                id: customerPackage.id,
+              },
+            },
+          },
+        })
+
         const subscriptionTasks = subscriptions.map(async ({ ...input }) => {
           return this.createSubscription(prismaClient, input, customerPackage.uuid)
         })

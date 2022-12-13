@@ -33,6 +33,7 @@ model Customer {
   id         Int              @id @default(autoincrement())
   uuid       String           @unique @default(cuid())
   phone      String           @unique
+  email      String?           @unique
   code       String
   userInfoId Int?
   packages   CustomerPackage?
@@ -54,8 +55,7 @@ model CustomerPackage {
   description        String
   billingDate        DateTime       @map(name: "billing_date")
   subscriptions      Subscription[]
-  BillingDetail      BillingDetail? @relation(fields: [billingDetailId], references: [id])
-  billingDetailId    Int?
+  BillingDetail      BillingDetail[]
   customer           Customer?      @relation(fields: [customerId], references: [id])
   customerId         Int?           @unique
 
@@ -167,9 +167,15 @@ model Billing {
   uuid           String          @unique @default(cuid())
   createdAt      DateTime        @default(now()) @map(name: "created_at")
   totalAmount    Decimal
-  customerId     Int             @map("user_id")
+  customerId     Int             @map("customer_id")
+  status         BillingStatus
   customer       Customer        @relation(fields: [customerId], references: [id])
   billingDetails BillingDetail[]
 
   @@map("billing")
+}
+
+enum BillingStatus {
+  PAID
+  PENDING
 }
